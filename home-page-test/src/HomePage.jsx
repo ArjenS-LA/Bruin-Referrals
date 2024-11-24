@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './Button.css' 
+import './Button.css'
+import myImage from 
 
 function HomePage() {
     const [userInput, setUserInput] = useState('');
@@ -13,6 +14,13 @@ function HomePage() {
     <div style={{ backgroundColor: 'lightBlue', height: '100vh', 
     textAlign: 'left', padding: '10px' }}>
       <h1>Bruin Referrals</h1>
+      
+      {/* <img
+        src={myImage}
+        alt="A description of the image"
+        style={{ width: '300px', height: 'auto' }} // Sets the width, maintains aspect ratio
+      /> */}
+
       <h2><button className="styled-button" onClick={() => alert('Button Clicked!')}>Search</button></h2>
       <p>This is a basic homepage created with React.</p>
 
