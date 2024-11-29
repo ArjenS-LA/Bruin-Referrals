@@ -1,20 +1,24 @@
 /* Use this file in roles & permissions */
 
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 
 const verifyJWT = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
     return res.status(401).json({ message: "No token provided" });
   }
-  console.log(authHeader); // Bearer <token>
+  console.log(authHeader); // Bearer<token>
   const token = authHeader.split(" ")[1];
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-    req.user = decoded.username;
-    next();
+    (err, decoded) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+      req.user = decoded.UserInfo.username;
+      req.roles = decoded.UserInfo.roles;
+      next();
+    };
   });
 };
+
+module.exports = verifyJWT;
