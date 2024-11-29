@@ -1,14 +1,8 @@
-const userDb = {
-  users: require("../../data/users.json"),
-  setUsers: function (data) {
-    this.users = data;
-  },
-};
+const User = require("../data/User");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
 
 const handleRefreshToken = async (req, res) => {
-  const cookies = req.body;
+  const cookies = req.cookies;
 
   // Check if refresh token exists
   if (!cookies?.jwt) return res.sendStatus(401);
@@ -16,22 +10,25 @@ const handleRefreshToken = async (req, res) => {
   const refreshToken = cookies.jwt;
 
   // Check if user exists
-  const foundUser = userDb.users.find(
-    (person) => person.refreshToken === refreshToken
-  );
+  const foundUser = await User.findOne({ refreshToken }).exec();
   if (!foundUser) return res.sendStatus(403);
 
   // Evaluate refresh token
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
-    if (err || foundUser.username !== decoded.username) {
-      return res.status(403);
-    }
+    if (err || foundUser.username !== decoded.username)
+      return res.sendStatus(403);
+    const roles = Object.values(foundUser.roles);
     const accessToken = jwt.sign(
-      { username: foundUser.username },
+      {
+        UserInfo: {
+          username: decoded.username,
+          roles: roles,
+        },
+      },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "1m" }
     );
-    res.json({ accessToken });
+    res.json({ roles, accessToken });
   });
 };
 

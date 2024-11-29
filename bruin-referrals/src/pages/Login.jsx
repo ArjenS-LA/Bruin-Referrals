@@ -30,6 +30,8 @@ const Login = () => {
     setError("");
   }, [user, password]);
 
+  // If use fetch, include credentials: "include" in the options object
+  // If use axios, include withCredentials: true in the options object
   // Handle form submission with global error handling
   const handleSumbit = async (e) => {
     e.preventDefault();

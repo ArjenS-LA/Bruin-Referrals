@@ -1,15 +1,16 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const app = express();
 const verifyJWT = require("./middleware/verifyJWT");
 const cookieParser = require("cookie-parser");
+const mongoose = require("mongoose");
+const connectDB = require("./config/dbConn");
 const PORT = process.env.PORT || 5000;
 //const cors = require("cors");
 
-// // TESTING
-// app.get("/", (req, res) => {
-//     res.send("Hello World!");
-// });
+// Connect to MongoDB
+connectDB();
 
 // Parse incoming JSON data
 app.use(express.json());
@@ -20,7 +21,8 @@ app.use(cookieParser());
 // API Routes
 app.use("/register", require("./src/components/Routes/register"));
 app.use("/auth", require("./src/components/Routes/auth"));
-app.use("/refreshToken", require("./src/components/Routes/refresh"));
+app.use("/refresh", require("./src/components/Routes/refresh"));
+app.use("/logout", require("./src/components/Routes/logout"));
 
 // Serve React App for all other routes
 app.get("*", (req, res) => {
@@ -38,7 +40,11 @@ app.use((err, req, res, next) => {
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, "./public")));
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Connect to MongoDB
+mongoose.connection.once("open", () => {
+  console.log("Connected to MongoDB");
+  // Start the server
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 });
