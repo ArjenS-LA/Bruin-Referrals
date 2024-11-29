@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import Post from "./Post";
+import PostForm from "./PostForm";
+import axios from "axios";
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -6,15 +9,24 @@ const PostList = () => {
   const [loading, setLoading] = useState(false);
   const observerRef = useRef();
 
+  const addPost = async (newPost) => {
+    try {
+      console.log("Adding Post:", newPost); // Log new post data
+      const response = await axios.post("http://localhost:3500/posts", newPost);
+      console.log("Response from server:", response.data); // Log server response
+      setPosts((prevPosts) => [response.data, ...prevPosts]);
+    } catch (error) {
+      console.error("Error adding post:", error);
+    }
+  };
+
   // Fetch posts from API
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=10`
-      );
+      const response = await fetch("http://localhost:3500/posts"); // Correct URL
       const data = await response.json();
-      setPosts((prevPosts) => [...prevPosts, ...data]);
+      setPosts(data); // Set posts in state
     } catch (error) {
       console.error("Error fetching posts:", error);
     }
@@ -24,7 +36,7 @@ const PostList = () => {
   // Load posts when page changes
   useEffect(() => {
     fetchPosts();
-  }, [page]);
+  }, []);
 
   // Set up IntersectionObserver for infinite scrolling
   useEffect(() => {
@@ -51,11 +63,16 @@ const PostList = () => {
   return (
     <div>
       <h2>Post Feed</h2>
+      <PostForm onAddPost={addPost} />
       {posts.map((post) => (
-        <div key={post.id} className="post">
-          <h3>{post.title}</h3>
-          <p>{post.body}</p>
-        </div>
+        <Post
+          key={post._id} // Use _id as the key
+          title={post.title}
+          author={post.userId || "Current User"}
+          description={post.description || post.body}
+          likes={post.likes}
+          comments={post.comments}
+        />
       ))}
       {loading && <p>Loading more posts...</p>}
       <div ref={observerRef} style={{ height: "20px" }}></div>

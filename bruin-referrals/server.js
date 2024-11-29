@@ -1,12 +1,13 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const path = require("path");
 const app = express();
 const verifyJWT = require("./middleware/verifyJWT");
 const cookieParser = require("cookie-parser");
 const mongoose = require("mongoose");
 const connectDB = require("./config/dbConn");
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3500; //5000
 //const cors = require("cors");
 
 // Connect to MongoDB
@@ -14,6 +15,14 @@ connectDB();
 
 // Parse incoming JSON data
 app.use(express.json());
+
+//Handle cross origin
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 // Parse incoming cookies
 app.use(cookieParser());
@@ -23,6 +32,8 @@ app.use("/register", require("./src/components/Routes/register"));
 app.use("/auth", require("./src/components/Routes/auth"));
 app.use("/refresh", require("./src/components/Routes/refresh"));
 app.use("/logout", require("./src/components/Routes/logout"));
+app.use("/posts", require("./src/components/Routes/postRoute"));
+
 
 // Serve React App for all other routes
 app.get("*", (req, res) => {
