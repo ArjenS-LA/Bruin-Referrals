@@ -1,49 +1,77 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import Post from "./Post";
 import PostForm from "./PostForm";
-import axios from "axios";
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const observerRef = useRef();
 
+  // Function to add a new post
   const addPost = async (newPost) => {
     try {
-      console.log("Adding Post:", newPost); // Log new post data
-      const response = await axios.post("http://localhost:3500/posts", newPost);
-      console.log("Response from server:", response.data); // Log server response
+      const response = await axios.post("http://localhost:3500/posts", {
+        ...newPost,
+        likes: 0,
+        comments: []
+      });
       setPosts((prevPosts) => [response.data, ...prevPosts]);
     } catch (error) {
       console.error("Error adding post:", error);
+      setError("Failed to add post");
     }
   };
 
   // Fetch posts from API
   const fetchPosts = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch("http://localhost:3500/posts"); // Correct URL
-      const data = await response.json();
-      setPosts(data); // Set posts in state
+      const response = await axios.get("http://localhost:3500/posts");
+      setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
+      setError("Failed to fetch posts");
     }
     setLoading(false);
   };
 
-  // Load posts when page changes
+  // Handle liking a post
+  const handleLikePost = async (id) => {
+    try {
+      console.log(`Attempting to like post with ID: ${id}`);
+      const response = await axios.patch(`http://localhost:3500/posts/${id}/like`);
+      
+      console.log('Like response:', response.data);
+      
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === id ? response.data : post
+        )
+      );
+    } catch (error) {
+      console.error("Full error object:", error);
+      console.error("Error response:", error.response);
+      console.error("Error message:", error.message);
+      console.error("Error config:", error.config);
+    }
+  };
+
+  // Fetch posts on initial load
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  // Set up IntersectionObserver for infinite scrolling
+  // Infinite scroll setup (optional)
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && !loading) {
           setPage((prevPage) => prevPage + 1);
+          // Note: You'll need to modify backend to support pagination
         }
       },
       { threshold: 1 }
@@ -58,23 +86,44 @@ const PostList = () => {
         observer.unobserve(observerRef.current);
       }
     };
-  }, []);
+  }, [loading]);
 
   return (
-    <div>
+    <div className="post-list-container">
       <h2>Post Feed</h2>
+      
+      {/* Post Creation Form */}
       <PostForm onAddPost={addPost} />
-      {posts.map((post) => (
-        <Post
-          key={post._id} // Use _id as the key
-          title={post.title}
-          author={post.userId || "Current User"}
-          description={post.description || post.body}
-          likes={post.likes}
-          comments={post.comments}
-        />
-      ))}
-      {loading && <p>Loading more posts...</p>}
+
+      {/* Error Handling */}
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
+
+      {/* Posts Rendering */}
+      {posts.length === 0 && !loading ? (
+        <p>No posts available. Be the first to post!</p>
+      ) : (
+        posts.map((post) => (
+          <Post
+            key={post._id}
+            _id={post._id}
+            title={post.title}
+            author={post.author}
+            description={post.description}
+            likes={post.likes}
+            comments={post.comments}
+            onLike={handleLikePost}
+          />
+        ))
+      )}
+
+      {/* Loading Indicator */}
+      {loading && <p>Loading posts...</p>}
+
+      {/* Infinite Scroll Trigger (optional) */}
       <div ref={observerRef} style={{ height: "20px" }}></div>
     </div>
   );

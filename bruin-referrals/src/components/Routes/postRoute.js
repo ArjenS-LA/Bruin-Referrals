@@ -5,5 +5,6 @@ const postController = require("../../../controllers/postController");
 
 router.post("/", postController.createPost);
 router.get("/", postController.getPosts);
+router.patch('/:id/like', postController.likePost); // This handles the like functionality
 
 module.exports = router;
