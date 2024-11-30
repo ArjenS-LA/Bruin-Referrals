@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios"
 import "./Post.css";
 
 
@@ -6,15 +7,23 @@ const Post = ({ _id, title, author, description, likes, comments, onLike }) => {
   const [commentList, setCommentList] = useState(comments || []);
   const [newComment, setNewComment] = useState("");
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (newComment.trim()) {
-      // You might want to send the comment to the backend
-      // For now, we'll just update local state
-      setCommentList((prev) => [...prev, newComment]);
-      setNewComment("");
+      try {
+        const response = await axios.post(`http://localhost:3500/posts/${_id}/comments`, {
+          comment: newComment, // Simple string passed as comment
+        });
+  
+        setCommentList(response.data); // Update local comments list
+        setNewComment("");
+      } catch (error) {
+        console.error("Error adding comment:", error);
+        alert("Failed to add comment. Please try again.");
+      }
     }
   };
+  
 
   return (
     <div className="post-item">
@@ -39,11 +48,11 @@ const Post = ({ _id, title, author, description, likes, comments, onLike }) => {
         </form>
         
         {commentList.length > 0 && (
-          <ul className="comment-list">
-            {commentList.map((comment, index) => (
-              <li key={index} className="comment-item">{comment}</li>
-            ))}
-          </ul>
+            <ul className="comment-list">
+                {commentList.map((comment, index) => (
+                    <li key={comment._id || index} className="comment-item">{comment.text}</li>
+                 ))}
+            </ul>
         )}
       </div>
     </div>
