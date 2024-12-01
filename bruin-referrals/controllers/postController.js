@@ -22,7 +22,7 @@ const createPost = async (req, res) => {
 // Fetch all posts
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().sort({createdAt: -1});
     res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ message: "Error fetching posts", error });
@@ -72,8 +72,5 @@ const addCommentToPost = async (req, res) => {
       res.status(500).json({ message: "Error adding comment", error });
     }
   };
-  
-  
-  
 
 module.exports = { createPost, getPosts, likePost, addCommentToPost };

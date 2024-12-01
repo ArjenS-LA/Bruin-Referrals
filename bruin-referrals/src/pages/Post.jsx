@@ -3,7 +3,7 @@ import axios from "axios"
 import "./Post.css";
 
 
-const Post = ({ _id, title, author, description, likes, comments, onLike }) => {
+const Post = ({ _id, title, author, description, likes, comments, onLike, onDelete }) => {
   const [commentList, setCommentList] = useState(comments || []);
   const [newComment, setNewComment] = useState("");
 
@@ -32,8 +32,7 @@ const Post = ({ _id, title, author, description, likes, comments, onLike }) => {
       <p className="post-description">{description}</p>
       
       <div className="post-interactions">
-        <button onClick={() => onLike(_id)} className="like-button">Like ({likes})</button>
-        
+        <button onClick={() => onLike(_id)} className="like-button">Like ({likes})</button>        
         <form onSubmit={handleCommentSubmit} className="comment-form">
           <input
             type="text"

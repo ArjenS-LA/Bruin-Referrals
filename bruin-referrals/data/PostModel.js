@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema({
   author: String,
   likes: { type: Number, default: 0 },
   comments: [commentSchema], // Array of subdocuments
-});
+}, {timestamps: true});
 
 const Post = mongoose.model("Post", postSchema);
 

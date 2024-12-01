@@ -42,21 +42,28 @@ const PostList = () => {
   // Handle liking a post
   const handleLikePost = async (id) => {
     try {
-      console.log(`Attempting to like post with ID: ${id}`);
-      const response = await axios.patch(`http://localhost:3500/posts/${id}/like`);
-      
-      console.log('Like response:', response.data);
-      
+      const response = await axios.patch("http://localhost:3500/posts/" + id + "/like");
+      const updatedPost = response.data;
+
+      // Update the posts state with the new like count
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post._id === id ? response.data : post
+          post._id === updatedPost._id ? updatedPost : post
         )
       );
+
     } catch (error) {
-      console.error("Full error object:", error);
-      console.error("Error response:", error.response);
-      console.error("Error message:", error.message);
-      console.error("Error config:", error.config);
+      console.error("Error liking post:", error);
+    }
+  };
+
+  const handleDeletePost = async (id) => {
+    try {
+      await axios.delete("http://localhost:3500/posts/" + id);
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      setError("Failed to delete post");
     }
   };
 
@@ -116,6 +123,7 @@ const PostList = () => {
             likes={post.likes}
             comments={post.comments}
             onLike={handleLikePost}
+            onDelete={handleDeletePost}
           />
         ))
       )}
