@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import './Button.css' 
 
+//Chatbot 
+import Chatbot from './Chatbot';
+
 function HomePage() {
-    const [userInput, setUserInput] = useState('');
+    const [userInput, setUserInput] = useState(''); 
 
     //HELPER FUNCTION
     const handleInputChange = (event) => {
@@ -29,6 +32,8 @@ function HomePage() {
       <p>You typed: {userInput}</p>
 
       <button onClick={() => alert('Button Clicked!')}>Click Me</button>
+
+      <Chatbot />
     </div>
   );
 }
