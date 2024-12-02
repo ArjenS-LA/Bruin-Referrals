@@ -36,35 +36,62 @@ function Chatbot() {
             let role = messageObject.sender === "ChatGPT" ? "assistant" : "user";
             return { role: role, content: messageObject.message };
         });
-
+    
         const systemMessage = {
             role: "system",
             content: "You are an assistant that is incorporated into a referral website. Remain on topic and avoid going off-topic."
         };
-
+    
         const apiRequestBody = {
             "model": "gpt-3.5-turbo",
             "messages": [systemMessage, ...apiMessages]
         };
 
-        await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + API_KEY,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(apiRequestBody)
-        })
-            .then((data) => data.json())
-            .then((data) => {
-                setMessages([...chatMessages, {
-                    message: data.choices[0].message.content,
+        // Try block implemented to catch errors. 
+        try {
+            const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(apiRequestBody)
+            });
+    
+            const data = await response.json();
+    
+            // Check if the response has valid choices
+            if (data.choices && data.choices.length > 0) {
+                setMessages([...chatMessages,
+                    {
+                        message: data.choices[0].message.content,
+                        sender: "ChatGPT",
+                        direction: "incoming"
+                    }
+                ]);
+            } else {
+                // Fallback if choices are missing or if could not retreive a response from OpenAI API.
+                setMessages([...chatMessages,
+                    {
+                        message: "I am currently unavailable. Please try again later.",
+                        sender: "ChatGPT",
+                        direction: "incoming"
+                    }
+                ]);
+            }
+            //Handle network or server errors (failure to connect)
+        } catch (error) {
+            setMessages([...chatMessages,
+                {
+                    message: "I am currently unavailable due to a technical issue. Please try again later.",
                     sender: "ChatGPT",
                     direction: "incoming"
-                }]);
-                setTyping(false);
-            });
-    }    
+                }
+            ]);
+        } finally {
+            setTyping(false); // Ensure typing indicator is hidden
+        }
+    }
 
     // Function to toggle visibility of chatbot
     const toggleChatVisibility = () => {
