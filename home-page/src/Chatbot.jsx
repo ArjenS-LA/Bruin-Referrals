@@ -4,7 +4,7 @@ import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from "@chatscope/chat-ui-kit-react";
 
 // Your API key
-const API_KEY = process.env.REACT_APP_API_KEY
+const API_KEY = process.env.REACT_APP_API_KEY;
 
 function Chatbot() {
     const [typing, setTyping] = useState(false);
@@ -20,7 +20,7 @@ function Chatbot() {
     const handleSend = async (message) => {
         const newMessage = {
             message: message,
-            sender: "user",  
+            sender: "user",
             direction: "outgoing"
         };
 
@@ -32,14 +32,14 @@ function Chatbot() {
     };
 
     async function processMessageToChatGPT(chatMessages) {
-        let apiMessages = chatMessages.map((messageObjet) => {
-            let role = messageObjet.sender === "ChatGPT" ? "assistant" : "user";
-            return { role: role, content: messageObjet.message };
+        let apiMessages = chatMessages.map((messageObject) => {
+            let role = messageObject.sender === "ChatGPT" ? "assistant" : "user";
+            return { role: role, content: messageObject.message };
         });
 
         const systemMessage = {
             role: "system",
-            content: "Be a helpful assistant."
+            content: "You are an assistant that is incorporated into a referral website. Remain on topic and avoid going off-topic."
         };
 
         const apiRequestBody = {
@@ -54,17 +54,17 @@ function Chatbot() {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(apiRequestBody)
-        }).then((data) => {
-            return data.json();
-        }).then((data) => {
-            setMessages([...chatMessages, {
-                message: data.choices[0].message.content,
-                sender: "ChatGPT",
-                direction: "incoming"
-            }]);
-            setTyping(false);
-        });
-    }
+        })
+            .then((data) => data.json())
+            .then((data) => {
+                setMessages([...chatMessages, {
+                    message: data.choices[0].message.content,
+                    sender: "ChatGPT",
+                    direction: "incoming"
+                }]);
+                setTyping(false);
+            });
+    }    
 
     // Function to toggle visibility of chatbot
     const toggleChatVisibility = () => {
@@ -85,7 +85,7 @@ function Chatbot() {
                         <ChatContainer>
                             <MessageList
                                 scrollBehavior="smooth"
-                                typingIndicator={typing ? <TypingIndicator content="ChatGPT is typing" /> : null}
+                                typingIndicator={typing ? <TypingIndicator content="Chatbot is typing" /> : null}
                             >
                                 {messages.map((message, i) => (
                                     <Message key={i} model={message} />
