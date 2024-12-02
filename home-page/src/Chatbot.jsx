@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import './Button.css';
+import './Chatbot-bubble.css';
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from "@chatscope/chat-ui-kit-react";
+
+import Chatbot_img from './assets/images/chat-bot.png' 
 
 // Your API key
 const API_KEY = process.env.REACT_APP_API_KEY;
@@ -79,7 +81,7 @@ function Chatbot() {
                     }
                 ]);
             }
-            //Handle network or server errors (failure to connect)
+             //Handle network or server errors (failure to connect)
         } catch (error) {
             setMessages([...chatMessages,
                 {
@@ -93,23 +95,23 @@ function Chatbot() {
         }
     }
 
-    // Function to toggle visibility of chatbot
+       // Function to toggle visibility of chatbot
     const toggleChatVisibility = () => {
         setChatVisible(!isChatVisible);
     };
 
     return (
         <div className="Chatbot">
-            {/* Button to open the chat */}
-            <button onClick={toggleChatVisibility} className="chat-button">
-                Open Chat
-            </button>
-
-            {/* Conditional rendering of the chatbot */}
+            {/* Floating chat bubble with an image */}
+            <div className="chatbot-bubble" onClick={toggleChatVisibility}>
+                <img src={Chatbot_img} alt="chatbot " />
+            </div>
+            
+            {/* Chat container */}
             {isChatVisible && (
-                <div className="chat-container" style={{ position: "fixed", bottom: "20px", right: "20px", width: "300px", height: "400px", zIndex: 1000 }}>
+                <div className="chatbot-container">
                     <MainContainer>
-                        <ChatContainer>
+                        <ChatContainer> 
                             <MessageList
                                 scrollBehavior="smooth"
                                 typingIndicator={typing ? <TypingIndicator content="Chatbot is typing" /> : null}
@@ -118,10 +120,9 @@ function Chatbot() {
                                     <Message key={i} model={message} />
                                 ))}
                             </MessageList>
-                            <MessageInput placeholder="Type message here" onSend={handleSend} />
+                            <MessageInput placeholder="Write a message" onSend={handleSend} />
                         </ChatContainer>
                     </MainContainer>
-                    <button onClick={toggleChatVisibility} className="close-chat-button">Close Chat</button>
                 </div>
             )}
         </div>
