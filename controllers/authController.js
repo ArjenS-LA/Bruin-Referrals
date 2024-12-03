@@ -15,7 +15,7 @@ const handleLogin = async (req, res) => {
 
   // Check if user exists
   const foundUser = await User.findOne({ username: username }).exec();
-  if (!foundUser) return res.status(404).json({ message: "User not found" });
+  if (!foundUser) return res.status(401).json({ message: "User not found" });
 
   // Check if password is correct
   const isPasswordCorrect = await bcrypt.compare(password, foundUser.password);
@@ -23,7 +23,7 @@ const handleLogin = async (req, res) => {
     return res.status(401).json({ message: "Incorrect password" });
 
   // Role-based access control
-  const roles = Object.values(foundUser.roles).set(Boolean);
+  const roles = Object.values(foundUser.roles).filter(Boolean);
 
   // Create JWTs
   const accessToken = jwt.sign(

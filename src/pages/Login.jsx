@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import AuthContext from "../auth/AuthProvider";
+import AuthContext from "../context/AuthProvider";
 
 import axios from "../api/axios";
 import "./register.css";
-const LOGIN_URL = "/auth";
+
+import BrandLogo from "../assets/Ucla-logo.png";
 
 /* Dave Gray User Login and Authentication with Axios*/
 /* https://www.youtube.com/watch?
@@ -20,7 +21,7 @@ const Login = () => {
   const [user, setUser] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -28,7 +29,7 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    setError("");
+    setErrMsg("");
   }, [user, password]);
 
   // If use fetch, include credentials: "include" in the options object
@@ -36,11 +37,33 @@ const Login = () => {
   // Handle form submission with global error handling
   const handleSumbit = async (e) => {
     e.preventDefault();
-    // Integrate axios and global state for authentication
-    setUser("");
-    setEmail("");
-    setPassword("");
-    setSuccess(true); // REPLACE LATER
+    try {
+      const response = await axios.post(
+        "/auth",
+        JSON.stringify({ username: user, email: email, password: password }),
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+      console.log(JSON.stringify(response?.data));
+      const accessToken = response?.data?.accessToken;
+      const roles = response?.data?.roles;
+      setUser("");
+      setEmail("");
+      setPassword("");
+      setSuccess(true);
+    } catch (error) {
+      if (!error?.response) {
+        setErrMsg("Server Error");
+      } else if (error.response.status === 401) {
+        setErrMsg("Incorrect username or password");
+      } else if (error.response.status === 400) {
+        setErrMsg("Invalid Input");
+      } else {
+        setErrMsg("Login failed");
+      }
+    }
   };
 
   return (
@@ -52,12 +75,19 @@ const Login = () => {
         </section>
       ) : (
         <section>
+          <span>
+            <img
+              src={BrandLogo}
+              alt="Brand logo"
+              style={{ width: "200px", height: "auto" }}
+            />
+          </span>
           <p
             ref={errRef}
-            className={error ? "error" : "offscreen"}
+            className={errMsg ? "error" : "offscreen"}
             aria-live="assertive"
           >
-            {error}
+            {errMsg}
           </p>
           <h1>Sign In</h1>
           <form onSubmit={handleSumbit}>
@@ -69,16 +99,6 @@ const Login = () => {
               autocomplete="off"
               onChange={(e) => setUser(e.target.value)}
               value={user}
-              required
-            />
-            <label htmlFor="email">Email:</label>
-            <input
-              type="text"
-              id="email"
-              ref={emailRef}
-              autocomplete="off"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
               required
             />
             <label htmlFor="password">Password:</label>
