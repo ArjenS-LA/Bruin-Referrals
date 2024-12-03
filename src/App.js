@@ -1,27 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
-import React from 'react';
-import HomePage from './HomePage.jsx';
+import React from "react";
 
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
+import { Routes, Route, useLocation } from "react-router-dom";
+import { DynamicItem, Sidebar, dummyData } from "./components";
 
-export default HomePage;
+import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
+import "./App.css";
+
+function App() {
+  const location = useLocation();
+
+  // Define routes where Sidebar should be hidden
+  const hiddenSidebarRoutes = ["/", "/login", "/signup"];
+
+  const shouldShowSidebar =
+    !hiddenSidebarRoutes.includes(location.pathname) ||
+    dummyData?.some((item) => item.path === location.pathname);
+
+  return (
+    <div id="main">
+      {shouldShowSidebar && <Sidebar />}
+      <Routes>
+        <Route path="/" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        {dummyData &&
+          dummyData.map((item, index) => (
+            <Route
+              key={index}
+              path={item.path}
+              element={<DynamicItem page={item.name} />}
+            />
+          ))}
+        <Route path="*" element={<DynamicItem page="not-found" />} />
+      </Routes>
+    </div>
+  );
+}
+
+export default App;
