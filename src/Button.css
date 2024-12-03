@@ -1,0 +1,9 @@
+.styled-button {
+    background-color: 'darkgrey';
+    color: darkslategrey;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}

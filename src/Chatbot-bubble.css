@@ -1,0 +1,33 @@
+.chatbot {
+    position: relative; 
+}
+
+.chatbot-bubble {
+    position: fixed;
+    bottom: 20px; 
+    right: 20px; 
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.chatbot-bubble img {
+    width: 50px; 
+    height: 50px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.chatbot-bubble img:hover {
+    transform: scale(1.2);
+}
+
+.chatbot-container {
+    position: fixed;
+    bottom: 80px; 
+    right: 20px; 
+    width: 350px; 
+    height: 500px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 999; 
+}
