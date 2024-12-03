@@ -1,0 +1,31 @@
+/* PostList.css */
+
+.post-list {
+    margin-top: 20px;
+  }
+  
+  .post-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+  }
+  
+  .post-title {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .post-author {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 10px;
+  }
+  
+  .post-body {
+    font-size: 1rem;
+    color: #555;
+  }
+  

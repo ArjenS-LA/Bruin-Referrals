@@ -3,45 +3,37 @@ import { ArrowBackIcon } from "../Icons";
 import Home from "../../pages/Home";
 import Admin from "../../pages/Admin";
 import Login from "../../pages/Login";
+import Signup from "../../pages/SignUp";
 
-/* GROUP MEMBERS: 
-    Export all paths from this file [item].jsx */
+const pageComponents = {
+  home: Home,
+  admin: Admin,
+  login: Login,
+  signup: Signup,
+};
 
-const Item = (props) => {
-  const { page } = props;
+const Item = ({ page }) => {
+  const PageComponent = pageComponents[page] || null; // Get the matching component or null if not found
 
-  if (page === "home") {
-    return <Home />; // CHANGE THIS TO HOME
-  } else if (page === "admin") {
-    return (
-      <div id="page">
-        <button className="btn">
-          <ArrowBackIcon /> Back to Home
-        </button>
-        <Admin />
-      </div>
-    ); // CHANGE THIS TO ADMIN
-  } else if (page === "login") {
-    return (
-      <div id="page">
-        <button className="btn">
-          <ArrowBackIcon /> Back to Home
-        </button>
-        <Login />
-      </div>
-    ); // CHANGE THIS TO ADMIN
-  } else {
-    return (
-      <div id="page">
+  return (
+    <div id="page">
+      {page !== "home" && (
         <Link to="/">
           <button className="btn">
             <ArrowBackIcon /> Back to Home
           </button>
         </Link>
-        {page}
-      </div>
-    );
-  }
+      )}
+      {PageComponent ? (
+        <PageComponent />
+      ) : (
+        <div className="not-found">
+          <h1>404</h1>
+          <p>The page "{page}" could not be found.</p>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Item;

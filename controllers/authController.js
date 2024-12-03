@@ -23,7 +23,7 @@ const handleLogin = async (req, res) => {
     return res.status(401).json({ message: "Incorrect password" });
 
   // Role-based access control
-  const roles = Object.values(foundUser.roles);
+  const roles = Object.values(foundUser.roles).set(Boolean);
 
   // Create JWTs
   const accessToken = jwt.sign(

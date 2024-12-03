@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect, useContext } from "react";
-// import { AuthContext } from "../auth/AuthProvider";
+import AuthContext from "../auth/AuthProvider";
 
 import axios from "../api/axios";
+import "./register.css";
 const LOGIN_URL = "/auth";
 
 /* Dave Gray User Login and Authentication with Axios*/
