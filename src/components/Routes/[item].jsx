@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 import { ArrowBackIcon } from "../Icons";
 import Home from "../../pages/Home";
 import Admin from "../../pages/Admin";
-import Login from "../../pages/Login";
-import Signup from "../../pages/SignUp";
+import Unauthorized from "../../pages/Unauthorized";
+//import Login from "../../pages/Login";
+//import Signup from "../../pages/SignUp";
 
 const pageComponents = {
   home: Home,
   admin: Admin,
-  login: Login,
-  signup: Signup,
+  unauthorized: Unauthorized,
 };
 
 const Item = ({ page }) => {

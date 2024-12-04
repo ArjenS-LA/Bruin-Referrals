@@ -34,6 +34,10 @@ app.use("/refresh", require("./src/components/Routes/refresh"));
 app.use("/logout", require("./src/components/Routes/logout"));
 app.use("/posts", require("./src/components/Routes/postRoute"));
 
+// Verify JWT for all routes
+app.use(verifyJWT);
+app.use("/users", require("./src/api/users"));
+
 // Serve React App for all other routes
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "./build/index.html"));

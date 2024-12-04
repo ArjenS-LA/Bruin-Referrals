@@ -37,8 +37,8 @@ export const SIDEBAR_DATA = [
   },
   {
     id: 5,
-    name: "users",
-    path: "users",
+    name: "admin",
+    path: "admin",
     icon: <UserIcon />,
   },
   {
@@ -55,8 +55,9 @@ export const SIDEBAR_DATA = [
   },
   {
     id: 8,
-    name: "admin",
-    path: "admin",
+    name: "logout",
+    path: "logout",
     icon: <AuthIcon />,
+    action: "logout",
   },
 ];

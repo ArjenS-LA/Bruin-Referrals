@@ -30,7 +30,7 @@ const PostList = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get("http://localhost:3500/posts");
+      const response = await axios.get("http://localhost:5000/posts");
       setPosts(response.data);
     } catch (error) {
       console.error("Error fetching posts:", error);

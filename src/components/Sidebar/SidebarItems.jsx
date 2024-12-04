@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useLogout from "../../hooks/useLogout";
 import {
   ItemsList,
   ItemContainer,
@@ -10,25 +11,46 @@ import {
 import { dummyData } from "..";
 
 const SidebarItems = ({ displaySidebar }) => {
-  const [activeItem, setActiveItem] = useState(0);
+  const [activeItem, setActiveItem] = useState(dummyData[0]?.id || null);
+  const logout = useLogout();
+  const navigate = useNavigate();
+
+  const signOut = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   return (
     <ItemsList>
-      {dummyData.map((itemData, index) => (
+      {dummyData.map((itemData) => (
         <ItemContainer
-          key={index}
-          onClick={() => setActiveItem(itemData.id)}
+          key={itemData.id}
           /* Adding active class when the user clicks */
           className={itemData.id === activeItem ? "active" : ""}
         >
-          <Link to={itemData.path}>
-            <ItemWrapper>
+          {itemData.action === "logout" ? (
+            <ItemWrapper
+              onClick={() => {
+                setActiveItem(itemData.id);
+                signOut();
+              }}
+              style={{ cursor: "pointer" }}
+            >
               {itemData.icon}
               <ItemName displaySidebar={displaySidebar}>
                 {itemData.name}
               </ItemName>
             </ItemWrapper>
-          </Link>
+          ) : (
+            <Link to={itemData.path} onClick={() => setActiveItem(itemData.id)}>
+              <ItemWrapper>
+                {itemData.icon}
+                <ItemName displaySidebar={displaySidebar}>
+                  {itemData.name}
+                </ItemName>
+              </ItemWrapper>
+            </Link>
+          )}
         </ItemContainer>
       ))}
     </ItemsList>

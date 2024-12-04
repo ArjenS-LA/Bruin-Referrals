@@ -274,7 +274,7 @@ function SignUp() {
             </button>
           </form>
           <p>
-            Already have an account?
+            Already have an account? <br />
             <span className="line">
               {/* Put Router Link Here*/}
               <a href="/login"> Login</a>
