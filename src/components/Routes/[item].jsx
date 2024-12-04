@@ -4,12 +4,14 @@ import Home from "../../pages/Home";
 import Admin from "../../pages/Admin";
 import Login from "../../pages/Login";
 import Signup from "../../pages/SignUp";
+import Profile from "../../pages/Profile";
 
 const pageComponents = {
   home: Home,
   admin: Admin,
   login: Login,
   signup: Signup,
+  profile: Profile
 };
 
 const Item = ({ page }) => {
