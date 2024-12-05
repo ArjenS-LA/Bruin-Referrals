@@ -5,11 +5,13 @@ import Admin from "../../pages/Admin";
 import Unauthorized from "../../pages/Unauthorized";
 //import Login from "../../pages/Login";
 //import Signup from "../../pages/SignUp";
+import Profile from "../../pages/Profile";
 
 const pageComponents = {
   home: Home,
   admin: Admin,
   unauthorized: Unauthorized,
+  profile: Profile
 };
 
 const Item = ({ page }) => {

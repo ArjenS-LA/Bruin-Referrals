@@ -60,4 +60,10 @@ export const SIDEBAR_DATA = [
     icon: <AuthIcon />,
     action: "logout",
   },
+  {
+    id: 9,
+    name: "profile",
+    path: "profile",
+    icon: <UserIcon />,
+  }
 ];
