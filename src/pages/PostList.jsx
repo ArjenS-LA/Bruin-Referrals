@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import Post from "./Post";
 import PostForm from "./PostForm";
+import useRefreshToken from "../hooks/useRefreshToken";
 
 const PostList = () => {
+  const axiosPrivate = useAxiosPrivate();
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -13,14 +16,14 @@ const PostList = () => {
   // Function to add a new post
   const addPost = async (newPost) => {
     try {
-      const response = await axios.post("http://localhost:5000/posts", {
+      const response = await axiosPrivate.post("/posts", {
         ...newPost,
         likes: 0,
         comments: [],
       });
       setPosts((prevPosts) => [response.data, ...prevPosts]);
     } catch (error) {
-      console.error("Error adding post:", error);
+      console.log("Error adding post:", error.response.data);
       setError("Failed to add post");
     }
   };

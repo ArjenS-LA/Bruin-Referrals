@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const commentSchema = new mongoose.Schema({
+const commentSchema = new Schema({
   text: { type: String, required: true },
 });
 
@@ -12,13 +13,13 @@ const industries = [
   "Other",
 ];
 
-const postSchema = new mongoose.Schema(
+const postSchema = new Schema(
   {
     title: { type: String, required: true },
     description: String,
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: true,
     }, // Added field
     likes: { type: Number, default: 0 },
@@ -33,6 +34,7 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     comments: [commentSchema],
+    default: [], // Added field
   }, // Added field
   { timestamps: true }
 );

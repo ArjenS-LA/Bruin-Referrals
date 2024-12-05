@@ -1,13 +1,15 @@
 // controllers/postController.js
 // Arnav Goel
 const Post = require("../data/PostModel");
+const User = require("../data/User");
 
 const createPost = async (req, res) => {
   try {
     const { title, description, industry, jobType } = req.body;
-    const author = req.user; // Set req.user.id from auth middleware
+    const username = req.user; // Set req.user.id from auth middleware
 
-    console.log("Author:", author);
+    console.log("Request body:", req.body);
+    console.log("Username:", username);
 
     if (!title || !industry || !jobType) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -32,15 +34,28 @@ const createPost = async (req, res) => {
       return res.status(400).json({ message: "Invalid job type value" });
     }
 
+    console.log("Retrieving author...");
+    // Retrieve ObjectId from req.user
+    const user = await User.findOne({ username: username }).exec();
+    if (!user) {
+      console.log("User not found");
+      res.status(404).json({ message: "Author not found" });
+    }
+
+    const author = user._id;
+
+    console.log("Creating post...");
+
     // Make sure to include default values for likes and comments
     const post = await Post.create({
-      title,
-      description,
-      author,
-      industry,
-      jobType,
-      comments: [], // Ensure comments array is initialized as empty
+      title: title,
+      description: description,
+      author: author,
+      industry: industry,
+      jobType: jobType,
     });
+    console.log("Created post:", post);
+
     res.status(201).json(post);
   } catch (error) {
     res.status(500).json({ message: "Error creating post", error });
