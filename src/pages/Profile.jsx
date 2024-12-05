@@ -47,7 +47,7 @@ function Profile() {
     };
 
     try {
-      const response = await axios.post('/profileUpdate', updatedData);
+      const response = await axios.post("http://localhost:5000/profileUpdate", updatedData);
       console.log('Profile updated:', response.data);
     } catch (error) {
       console.error('Error updating profile:', error);
