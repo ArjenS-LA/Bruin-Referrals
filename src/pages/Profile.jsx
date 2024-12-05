@@ -1,63 +1,67 @@
-import React, { useState } from 'react';
-import './Profile.css';
-import BruinDefaultpfp from "../assets/images/bearpfp.png";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import "./Profile.css";
+import useAxiosPrivate from "../hooks/useAxiosPrivate"; 
 
 function Profile() {
+  const axiosPrivate = useAxiosPrivate(); 
   const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
   const [profileData, setProfileData] = useState({
-    name: "Name",
-    bio: "Bio",
-    about: "Tell us about yourself"
+    name: "",
+    bio: "",
+    about: "",
+    profilepicture: "", 
   });
-  const [profilePic, setProfilePic] = useState(BruinDefaultpfp); // Default profile pic URL
 
-  // Function to handle file input change
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePic(reader.result); // Update the profile pic with the selected file
-      };
-      reader.readAsDataURL(file); // Read the file as a data URL
-    }
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axiosPrivate.get("/profile"); // ???
+        const data = response.data;
 
-  const handleEditClick = () => {
-    setIsEditing((prev) => !prev); // Toggle editing mode
-  };
+        setProfileData({
+          name: data.name || "Name",
+          bio: data.bio || "Bio",
+          about: data.about || "Tell us about yourself",
+          profilepicture: data.profilepicture || "", 
+        });
+    
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    fetchProfile();
+  }, [axiosPrivate]);
 
   const handleSaveClick = async () => {
-    setIsEditing(false); // Exit editing mode
+    setIsEditing(false);
 
     const updatedData = {
       name: profileData.name,
-      profilepicture: profilePic,
+      profilepicture: profileData.profilepicture,
       bio: profileData.bio,
       about: profileData.about,
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/profileUpdate", updatedData);
-      console.log('Profile updated:', response.data);
+      const response = await axiosPrivate.post("/profileUpdate", updatedData); //??
+      console.log("Profile updated:", response.data);
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
     }
   };
 
-  // Trigger file input on profile picture click (only if in edit mode)
-  const handleProfilePicClick = () => {
-    if (isEditing) { // Only allow profile picture change if in edit mode
-      document.getElementById('profile-pic-input').click(); // Trigger the file input click
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileData((prev) => ({
+          ...prev,
+          profilepicture: reader.result, // Update picture when a new one is uploaded
+        }));
+      };
+      reader.readAsDataURL(file); // Convert the file to a base64 string
     }
   };
 
@@ -66,31 +70,33 @@ function Profile() {
       {/* Profile Container */}
       <div className="profile-container">
         <div className="profile-header">
-          {/* Profile Picture with file input */}
-          <div className="profile-pic-container" onClick={handleProfilePicClick}>
+          {/* Profile Picture */}
+          <div className="profile-pic-container">
             <img
               className="profile-pic"
-              src={profilePic} // Use the state for the profile picture URL
+              src={profileData.profilepicture} // Use the profile picture from MongoDB
               alt="Profile"
             />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="file-input"
-              id="profile-pic-input" 
-              style={{ display: 'none' }} 
-            />
+            {isEditing && (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="file-input"
+              />
+            )}
           </div>
 
-          {/* Profile Info (Name and Bio) */}
+          {/* Profile Info */}
           <div className="profile-info">
             {isEditing ? (
               <input
                 type="text"
                 name="name"
                 value={profileData.name}
-                onChange={handleInputChange}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, name: e.target.value })
+                }
                 className="edit-input"
               />
             ) : (
@@ -100,7 +106,9 @@ function Profile() {
               <textarea
                 name="bio"
                 value={profileData.bio}
-                onChange={handleInputChange}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, bio: e.target.value })
+                }
                 className="edit-textarea"
               />
             ) : (
@@ -108,26 +116,26 @@ function Profile() {
             )}
           </div>
         </div>
-        <button className="edit-button" onClick={isEditing ? handleSaveClick : handleEditClick}>
+        <button onClick={isEditing ? handleSaveClick : () => setIsEditing(true)}>
           {isEditing ? "Save" : "Edit"}
         </button>
       </div>
 
-      {/* About Container */}
+      {/* About Section */}
       <div className="about-container">
-        <div className="about-section">
-          <h2>About </h2>
-          {isEditing ? (
-            <textarea
-              name="about"
-              value={profileData.about}
-              onChange={handleInputChange}
-              className="edit-textarea"
-            />
-          ) : (
-            <p>{profileData.about}</p>
-          )}
-        </div>
+        <h2>About</h2>
+        {isEditing ? (
+          <textarea
+            name="about"
+            value={profileData.about}
+            onChange={(e) =>
+              setProfileData({ ...profileData, about: e.target.value })
+            }
+            className="edit-textarea"
+          />
+        ) : (
+          <p>{profileData.about}</p>
+        )}
       </div>
     </div>
   );
