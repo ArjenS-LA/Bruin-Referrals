@@ -13,7 +13,7 @@ const PostList = () => {
   // Function to add a new post
   const addPost = async (newPost) => {
     try {
-      const response = await axios.post("http://localhost:3500/posts", {
+      const response = await axios.post("http://localhost:5000/posts", {
         ...newPost,
         likes: 0,
         comments: [],
