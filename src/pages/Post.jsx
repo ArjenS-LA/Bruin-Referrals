@@ -65,15 +65,14 @@ const Post = ({
         <button onClick={handleLike}>{likes.length} Likes</button>
 
         {/* Only show delete button if current user is the post author */}
-        <p> {currentUser} </p>
-        {currentUser && currentUser === author.username && (
-          <button 
-            onClick={handleDelete} 
-            className="delete-button"
-          >
-            Delete Post
-          </button>
-        )}
+        
+        <button 
+          onClick={handleDelete} 
+          className="delete-button"
+        >
+          Delete Post
+        </button>
+        
       </div>
 
       <div className="comments">

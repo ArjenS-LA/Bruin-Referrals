@@ -5,6 +5,7 @@ import PostForm from "./PostForm";
 import "./PostList.css"
 
 const PostList = () => {
+  console.log("PostList component rendered");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,10 +13,12 @@ const PostList = () => {
   const axiosPrivate = useAxiosPrivate();
 
   //Fetch user
-  useEffect(() => {
+  /*useEffect(() => {
+    console.log("useEffect triggered");
     const fetchCurrentUser = async () => {
       try {
         const response = await axiosPrivate.get("/user/me");
+        console.log("Fetched current user:", response.data.username);
         setCurrentUser(response.data.username);
       } catch (error) {
         console.error("Error fetching current user:", error);
@@ -23,10 +26,11 @@ const PostList = () => {
     };
 
     fetchCurrentUser();
-  }, [axiosPrivate]);
+  }, [axiosPrivate]);*/
 
   // Fetch all posts
   useEffect(() => {
+    console.log("useEffectPosts triggered");
     const fetchPosts = async () => {
       setLoading(true);
       setError(null);
