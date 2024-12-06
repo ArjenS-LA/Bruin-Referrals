@@ -59,7 +59,7 @@ app.use(express.static(path.join(__dirname, "./public")));
 // Connect to MongoDB
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB");
-  // Start the server
+  // Start the server to connect 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
