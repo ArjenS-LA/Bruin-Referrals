@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import Post from "./Post";
 import PostForm from "./PostForm";
-import "./PostList.css"
+import "./PostList.css";
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);
@@ -28,6 +28,7 @@ const PostList = () => {
   // Fetch all posts
   useEffect(() => {
     const fetchPosts = async () => {
+      console.log("Fetching posts...");
       setLoading(true);
       setError(null);
 
@@ -75,13 +76,11 @@ const PostList = () => {
       console.error("Error deleting post:", error);
       setError("Failed to delete post.");
     }
-  }; 
+  };
 
   const handleAddComment = (postId, updatedPost) => {
     setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post._id === postId ? updatedPost : post
-      )
+      prevPosts.map((post) => (post._id === postId ? updatedPost : post))
     );
   };
 

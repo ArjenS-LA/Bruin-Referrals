@@ -26,10 +26,12 @@ const SearchForm = () => {
 
       const response = await axios.get("/posts/search", {
         params,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`, // Adjust as needed
-        },
       });
+
+      console.log(
+        "RESULTS FROM searchPOSTS",
+        response.data.posts || response.data
+      );
 
       setPosts(response.data.posts || response.data); // Adjust based on response structure
     } catch (err) {
