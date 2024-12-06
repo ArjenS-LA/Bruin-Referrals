@@ -4,7 +4,7 @@ import "./Post.css";
 
 const Post = ({
   _id,
-  title,
+  title, 
   description,
   author,
   likes = [],

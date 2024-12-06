@@ -36,7 +36,7 @@ const createPost = async (req, res) => {
       comments: [], // Explicitly initialize comments
     });
 
-    await newPost.populate('author', 'username');
+    //await newPost.populate('author', 'username');
 
     res.status(201).json(newPost);
   } catch (error) {
@@ -50,6 +50,7 @@ const getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("author", "username") // Include author details
+      .populate("comments.author", "username")
       .sort({ createdAt: -1 }); // Sort by most recent first
 
     res.status(200).json(posts);
@@ -92,7 +93,7 @@ const likePost = async (req, res) => {
     await post.save();
 
     // Populate the post with like details if needed
-    await post.populate('likes', 'username');
+    await post.populate('author', 'username');
 
     res.status(200).json(post);
   } catch (error) {
@@ -129,7 +130,9 @@ const addCommentToPost = async (req, res) => {
     });
     await post.save();
 
-    // Populate the post with comment details
+
+    await post.populate('author', 'username');
+
     await post.populate({
       path: 'comments.author',
       select: 'username'
