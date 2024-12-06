@@ -20,9 +20,9 @@ function Profile() {
 
         setProfileData({
           name: data.name || "Name",
+          profilepicture: data.profilepicture || "", 
           bio: data.bio || "Bio",
           about: data.about || "Tell us about yourself",
-          profilepicture: data.profilepicture || "", 
         });
     
       } catch (error) {

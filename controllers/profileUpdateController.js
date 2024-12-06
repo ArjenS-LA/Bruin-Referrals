@@ -40,12 +40,12 @@ const handleEdit = async (req, res) => {
     ).exec();
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(403).json({ message: "User not found." });
     }
 
     res.status(200).json({ status: "Success", results: { updatedUser } });
   } catch (error) {
-    nsole.log("Error updating profile:", error);
+    console.log("Error updating profile:", error);
 
     // Handle duplicate key error (e.g., username or email already exists)
     if (error.code === 11000) {

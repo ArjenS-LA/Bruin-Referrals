@@ -38,6 +38,7 @@ app.use("/posts", require("./src/components/Routes/postRoute"));
 app.use(verifyJWT);
 app.use("/users", require("./src/api/users"));
 app.use("/profile", require("./src/components/Routes/profileUpdate"));
+app.use("/profileUpdate", require("./src/components/Routes/profileUpdate"))
 
 // Serve React App for all other routes
 app.get("*", (req, res) => {
