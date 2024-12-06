@@ -1,3 +1,4 @@
+//limit warning
 {
     "git.ignoreLimitWarning": true
 }
