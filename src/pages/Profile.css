@@ -1,0 +1,186 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
+  "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+  sans-serif;
+}
+
+/* Main Container */
+.page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #f3f2f1;
+  min-height: 100vh;
+}
+
+/* Profile Container */
+.profile-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  width: 100%;
+  background: linear-gradient(to bottom, #0073b1 25%, #fff 25%);
+}
+
+.profile-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  margin-bottom: 20px;
+  width: 100%;
+  margin-top: 100px;
+}
+
+/* Profile Picture Section */
+.profile-pic-container {
+  position: relative;
+  width: 120px;  
+  height: 120px; 
+  border-radius: 50%; 
+  border: 2px solid #d0d0d0;
+  overflow: hidden;
+  background-color: #f3f2f1;
+  margin-right: 20px;
+}
+
+.profile-pic {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.profile-pic-container input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+
+}
+
+/* Profile Info */
+.profile-info {
+  width: 100%;
+  max-width: 650px;
+  margin-top: 20px;
+  word-wrap: break-word; 
+}
+
+.profile-name {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2d2d2d;
+}
+
+.edit-input,
+.edit-textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #d0d0d0;
+  margin: 12px 0;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+}
+
+/* Textarea (for bio) */
+.edit-textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #d0d0d0;
+  margin: 12px 0;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  resize: vertical;
+  min-height: 100px;
+  word-wrap: break-word; 
+  white-space: pre-wrap; 
+}
+
+.profile-bio,
+.profile-about {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #2d2d2d;
+  margin: 10px 0;
+}
+
+/* About Section */
+.about-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.about-container h2 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 15px;
+  color: #0073b1;
+}
+
+.about-container p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #2d2d2d;
+  text-transform: none;
+}
+
+/* Edit/Save Button */
+button {
+  background-color: #0073b1;
+  color: #fff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+button:hover {
+  background-color: #005f8c;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 15px;
+  }
+
+  .profile-info,
+  .about-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .profile-name {
+    font-size: 1.5rem;
+  }
+}

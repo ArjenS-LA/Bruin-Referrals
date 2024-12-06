@@ -6,11 +6,13 @@ import Unauthorized from "../../pages/Unauthorized";
 import SearchForm from "../../pages/SearchForm";
 //import Login from "../../pages/Login";
 //import Signup from "../../pages/SignUp";
+import Profile from "../../pages/Profile";
 
 const pageComponents = {
   home: Home,
   admin: Admin,
   unauthorized: Unauthorized,
+  profile: Profile
   search: SearchForm,
 };
 

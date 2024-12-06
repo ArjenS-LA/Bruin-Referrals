@@ -24,6 +24,23 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  //make requireed later
+  name: {
+    type: String,
+    default: "First Last"
+  },
+  profilepicture: {
+    data: Buffer,
+    contentType: String,
+  },
+  bio: {
+    type: String,
+    default: "Bio",
+  },
+  about: {
+    type: String,
+    default: "Tell us about yourself...",
+  },
   refreshToken: String,
 });
 
