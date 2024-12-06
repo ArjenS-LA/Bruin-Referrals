@@ -1,76 +1,183 @@
-// controllers/postController.js
-// Arnav Goel
 const Post = require("../data/PostModel");
+const User = require("../data/User");
 
+// Create a post
 const createPost = async (req, res) => {
   try {
-    const { title, description, author } = req.body;
-    // Make sure to include default values for likes and comments
-    const post = await Post.create({
+    const { title, description, industry, jobType } = req.body;
+    const username = req.user
+
+    // Validate required fields
+    if (!title || !industry || !jobType) {
+      return res.status(400).json({ message: "Title, industry, and job type are required." });
+    }
+
+    console.log("Retrieving author...");
+    // Retrieve ObjectId from req.user
+    const user = await User.findOne({ username: username }).exec();
+    if (!user) {
+      console.log("User not found");
+      res.status(404).json({ message: "Author not found" });
+    }
+
+    const author = user._id;
+
+    console.log("Creating post...");
+
+
+    // Create a new post
+    const newPost = await Post.create({
       title,
       description,
+      industry,
+      jobType,
       author,
-      likes: 0, // Ensure the default like value is set
-      comments: [], // Ensure comments array is initialized as empty
+      likes: [], // Explicitly initialize likes
+      comments: [], // Explicitly initialize comments
     });
-    res.status(201).json(post);
+
+    await newPost.populate('author', 'username');
+
+    res.status(201).json(newPost);
   } catch (error) {
-    res.status(500).json({ message: "Error creating post", error });
+    console.error("Error creating post:", error);
+    res.status(500).json({ message: "Failed to create post." });
   }
 };
 
-// Fetch all posts
+// Get all posts
 const getPosts = async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 });
+    const posts = await Post.find()
+      .populate("author", "username email") // Include author details
+      .sort({ createdAt: -1 }); // Sort by most recent first
+
     res.status(200).json(posts);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching posts", error });
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Failed to fetch posts." });
   }
 };
 
-// Handle liking a post (update like count)
+// Like a post
 const likePost = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    // Find the post by ID and increment the "likes" field by 1
-    const post = await Post.findByIdAndUpdate(
-      id,
-      { $inc: { likes: 1 } }, // Increment the likes field
-      { new: true } // Return the updated post
-    );
+    const { id } = req.params;
+    const userId = req.user; // Assuming req.user contains the username
 
-    // If post not found
-    if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+    // Find the user to get their _id
+    const user = await User.findOne({ username: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
     }
 
-    res.status(200).json(post); // Return the updated post
-  } catch (error) {
-    res.status(500).json({ message: "Error liking post", error });
-  }
-};
-
-const addCommentToPost = async (req, res) => {
-  const { id } = req.params; // Post ID from URL
-  const { comment } = req.body; // Comment from request body
-
-  try {
     const post = await Post.findById(id);
     if (!post) {
-      return res.status(404).json({ message: "Post not found" });
+      return res.status(404).json({ message: "Post not found." });
     }
 
-    // Add the comment to the post's comments array as an object
-    post.comments.push({ text: comment });
+    // Check if user has already liked the post
+    const alreadyLiked = post.likes.includes(user._id);
+
+    if (alreadyLiked) {
+      // Unlike the post
+      post.likes = post.likes.filter(likeId => 
+        likeId.toString() !== user._id.toString()
+      );
+    } else {
+      // Like the post
+      post.likes.push(user._id);
+    }
+
     await post.save();
 
-    res.status(200).json(post.comments); // Return updated comments array
+    // Populate the post with like details if needed
+    await post.populate('likes', 'username');
+
+    res.status(200).json(post);
   } catch (error) {
-    console.error("Error adding comment:", error);
-    res.status(500).json({ message: "Error adding comment", error });
+    console.error("Error liking post:", error);
+    res.status(500).json({ message: "Failed to like post." });
   }
 };
 
-module.exports = { createPost, getPosts, likePost, addCommentToPost };
+// Add a comment to a post
+const addCommentToPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    const userId = req.user; // Assuming req.user contains the username
+
+    // Find the user to get their _id
+    const user = await User.findOne({ username: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    if (!text) {
+      return res.status(400).json({ message: "Comment text is required." });
+    }
+
+    post.comments.push({ 
+      text, 
+      author: user._id 
+    });
+    await post.save();
+
+    // Populate the post with comment details
+    await post.populate({
+      path: 'comments.author',
+      select: 'username'
+    });
+
+    res.status(201).json(post);
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Failed to add comment." });
+  }
+};
+
+const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.user; // username from JWT
+
+    // Find the user to get their _id
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Find the post and check if the current user is the author
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    // Check if the current user is the author of the post
+    if (post.author.toString() !== user._id.toString()) {
+      return res.status(403).json({ message: "Unauthorized to delete this post." });
+    }
+
+    // Delete the post
+    await Post.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Post deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ message: "Failed to delete post." });
+  }
+};
+
+module.exports = {
+  createPost,
+  getPosts,
+  likePost,
+  addCommentToPost,
+  deletePost,
+};
