@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './Chatbot-bubble.css';
-import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from "@chatscope/chat-ui-kit-react";
+import Chatbot_img from './assets/images/chat-bot.png';
 
-import Chatbot_img from './assets/images/chat-bot.png' 
-
-// Your API key
 const API_KEY = process.env.REACT_APP_API_KEY;
 
 function Chatbot() {
+    const messageListRef = useRef(null); // Reference for the message list
     const [typing, setTyping] = useState(false);
     const [messages, setMessages] = useState([
         {
@@ -17,7 +14,7 @@ function Chatbot() {
             direction: "incoming"
         }
     ]);
-    const [isChatVisible, setChatVisible] = useState(false); // State to control chatbot visibility
+    const [isChatVisible, setChatVisible] = useState(false);
 
     const handleSend = async (message) => {
         const newMessage = {
@@ -27,8 +24,8 @@ function Chatbot() {
         };
 
         const newMessages = [...messages, newMessage];
-        setMessages(newMessages); // Update messages state
-        setTyping(true); // Set typing indicator
+        setMessages(newMessages);
+        setTyping(true);
 
         await processMessageToChatGPT(newMessages);
     };
@@ -38,18 +35,17 @@ function Chatbot() {
             let role = messageObject.sender === "ChatGPT" ? "assistant" : "user";
             return { role: role, content: messageObject.message };
         });
-    
+
         const systemMessage = {
             role: "system",
             content: "You are an assistant that is incorporated into a referral website. Remain on topic and avoid going off-topic."
         };
-    
+
         const apiRequestBody = {
             "model": "gpt-3.5-turbo",
             "messages": [systemMessage, ...apiMessages]
         };
 
-        // Try block implemented to catch errors. 
         try {
             const response = await fetch("https://api.openai.com/v1/chat/completions", {
                 method: "POST",
@@ -59,10 +55,9 @@ function Chatbot() {
                 },
                 body: JSON.stringify(apiRequestBody)
             });
-    
+
             const data = await response.json();
-    
-            // Check if the response has valid choices
+
             if (data.choices && data.choices.length > 0) {
                 setMessages([...chatMessages,
                     {
@@ -72,7 +67,6 @@ function Chatbot() {
                     }
                 ]);
             } else {
-                // Fallback if choices are missing or if could not retreive a response from OpenAI API.
                 setMessages([...chatMessages,
                     {
                         message: "I am currently unavailable. Please try again later.",
@@ -81,7 +75,6 @@ function Chatbot() {
                     }
                 ]);
             }
-             //Handle network or server errors (failure to connect)
         } catch (error) {
             setMessages([...chatMessages,
                 {
@@ -91,38 +84,59 @@ function Chatbot() {
                 }
             ]);
         } finally {
-            setTyping(false); // Ensure typing indicator is hidden
+            setTyping(false);
         }
     }
 
-       // Function to toggle visibility of chatbot
     const toggleChatVisibility = () => {
         setChatVisible(!isChatVisible);
     };
 
+    const scrollToBottom = () => {
+        if (messageListRef.current) {
+            messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+        }
+    };
+
+    useEffect(() => {
+        scrollToBottom(); // Scroll to bottom whenever messages change
+    }, [messages]);
+
     return (
         <div className="Chatbot">
-            {/* Floating chat bubble with an image */}
             <div className="chatbot-bubble" onClick={toggleChatVisibility}>
-                <img src={Chatbot_img} alt="chatbot " />
+                <img src={Chatbot_img} alt="chatbot" />
             </div>
-            
-            {/* Chat container */}
             {isChatVisible && (
                 <div className="chatbot-container">
-                    <MainContainer>
-                        <ChatContainer> 
-                            <MessageList
-                                scrollBehavior="smooth"
-                                typingIndicator={typing ? <TypingIndicator content="Chatbot is typing" /> : null}
-                            >
-                                {messages.map((message, i) => (
-                                    <Message key={i} model={message} />
-                                ))}
-                            </MessageList>
-                            <MessageInput placeholder="Write a message" onSend={handleSend} />
-                        </ChatContainer>
-                    </MainContainer>
+                    <div className="message-list" ref={messageListRef}>
+                        {messages.map((message, i) => (
+                            <div key={i} className={`message ${message.direction}`}>
+                                <div className={`message-bubble ${message.sender}`}>
+                                    {message.message}
+                                </div>
+                            </div>
+                        ))}
+                        {typing && (
+                            <div className="message incoming">
+                                <div className="message-bubble typing-indicator">
+                                    Chatbot is typing...
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="message-input">
+                        <input
+                            type="text"
+                            placeholder="Write a message"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && e.target.value.trim() !== "") {
+                                    handleSend(e.target.value.trim());
+                                    e.target.value = "";
+                                }
+                            }}
+                        />
+                    </div>
                 </div>
             )}
         </div>

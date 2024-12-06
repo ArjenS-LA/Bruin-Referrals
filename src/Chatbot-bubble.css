@@ -1,41 +1,116 @@
-/* Chatbot Reset Styles */
-.Chatbot * {
-    all: unset;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* Chatbot-bubble.css */
 
-.chatbot {
-    position: relative; 
-}
-
-.chatbot-bubble {
+/* General container styling */
+.Chatbot {
     position: fixed;
-    bottom: 20px; 
-    right: 20px; 
-    cursor: pointer;
+    bottom: 20px;
+    right: 20px;
     z-index: 1000;
 }
 
-.chatbot-bubble img {
-    width: 50px; 
-    height: 50px;
+.chatbot-bubble:hover {
+    transform: scale(1.1);
     transition: transform 0.2s ease-in-out;
 }
 
-.chatbot-bubble img:hover {
-    transform: scale(1.2);
+.chatbot-bubble img {
+    width: 60px;
+    height: 60px;
 }
 
+/* Chat container */
 .chatbot-container {
     position: fixed;
-    bottom: 80px; 
-    right: 20px; 
-    width: 350px; 
-    height: 500px;
-    background-color: white;
+    bottom: 150px;
+    right: 20px;
+    width: 350px;
+    max-height: 500px;
+    background-color: #ffffff;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 999; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 500px;
+}
+
+/* Message list */
+.message-list {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+}
+
+/* Messages */
+.message {
+    margin: 0px 0;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.message.outgoing {
+    justify-content: flex-end;
+    padding-right: 0%;
+}
+
+.message.incoming {
+    justify-content: flex-start;
+    padding-left: 0%;
+}
+
+.message-bubble.user {
+    background-color: #0078d7;
+    color: white;
+    align-self: flex-end;
+}
+
+.message-bubble.ChatGPT {
+    background-color: #e1e1e1;
+    color: #6c757d;
+    align-self: flex-start;
+    
+}
+
+/* Typing indicator */
+.typing-indicator {
+    font-style: italic;
+    color: #6c757d;
+    background-color: #f1f1f1;
+}
+
+/* Message input */
+.message-input {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    background-color: white;
+}
+
+.message-input input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.message-input input:focus {
+    border-color: #0078d7;
 }
