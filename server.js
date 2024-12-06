@@ -37,6 +37,7 @@ app.use("/posts", require("./src/components/Routes/postRoute"));
 // Verify JWT for all routes
 app.use(verifyJWT);
 app.use("/users", require("./src/api/users"));
+app.use("/profile", require("./src/components/Routes/profileUpdate"));
 
 // Serve React App for all other routes
 app.get("*", (req, res) => {
