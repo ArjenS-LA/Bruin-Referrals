@@ -27,7 +27,7 @@ app.use(
 // Parse incoming cookies
 app.use(cookieParser());
 
-// API Routes
+// The API Routes
 app.use("/register", require("./src/components/Routes/register"));
 app.use("/auth", require("./src/components/Routes/auth"));
 app.use("/refresh", require("./src/components/Routes/refresh"));
