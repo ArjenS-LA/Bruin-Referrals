@@ -1,19 +1,52 @@
-// data/PostModel.js
-// Arnav Goel
 const mongoose = require("mongoose");
 
-const commentSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-});
+const industries = [
+  "Technology",
+  "Healthcare",
+  "Business",
+  "Research",
+  "Other",
+];
+
+const jobTypes = [
+  "Full-Time",
+  "Part-Time",
+  "Internship",
+];
 
 const postSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: String,
-    author: String,
-    likes: { type: Number, default: 0 },
-    comments: [commentSchema], // Array of subdocuments
-  },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    }, // Added field
+    likes: [{ 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User" 
+    }],
+    industry: {
+      type: String,
+      enum: industries,
+      required: true,
+    }, // Added field
+    jobType: {
+      type: String,
+      enum: jobTypes, // Added field
+      required: true,
+    },
+    comments: [{
+      text: { type: String, required: true },
+      author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+      createdAt: { type: Date, default: Date.now }
+    }],
+  }, // Added field
   { timestamps: true }
 );
 

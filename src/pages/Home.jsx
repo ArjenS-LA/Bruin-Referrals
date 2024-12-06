@@ -18,10 +18,7 @@ function HomePage() {
   return (
     <div className="homepage-container">
       <header className="homepage-header">
-        <h1>Bruin Referrals</h1>
-        <button className="sign-up-button" onClick={goToSignIn}>
-          Sign Up
-        </button>
+        <h1>Welcome to Bruin Referrals</h1>
       </header>
 
       <div className="homepage-content">
