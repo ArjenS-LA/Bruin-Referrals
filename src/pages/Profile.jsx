@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from "react";
 import "./Profile.css";
-import useAxiosPrivate from "../hooks/useAxiosPrivate"; 
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 function Profile() {
-  const axiosPrivate = useAxiosPrivate(); 
+  const axiosPrivate = useAxiosPrivate();
   const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
+  const [selectedFile, setSelectedFile] = useState(null); // File to upload
   const [profileData, setProfileData] = useState({
     name: "",
     bio: "",
     about: "",
-    profilepicture: "", 
+    profilepicture: "",
   });
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axiosPrivate.get("/profile"); // ???
+        const response = await axiosPrivate.get("/profile");
         const data = response.data;
 
         setProfileData({
           name: data.name || "Name",
-          profilepicture: data.profilepicture || "", 
+          profilepicture: data.profilepicture || "",
           bio: data.bio || "Bio",
           about: data.about || "Tell us about yourself",
         });
-    
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -36,16 +36,28 @@ function Profile() {
   const handleSaveClick = async () => {
     setIsEditing(false);
 
-    const updatedData = {
-      name: profileData.name,
-      profilepicture: profileData.profilepicture,
-      bio: profileData.bio,
-      about: profileData.about,
-    };
-
     try {
-      const response = await axiosPrivate.post("/profileUpdate", updatedData); //??
+      const formData = new FormData();
+      formData.append("name", profileData.name);
+      formData.append("bio", profileData.bio);
+      formData.append("about", profileData.about);
+
+      // Include the file if a new one was selected
+      if (selectedFile) {
+        formData.append("profilepicture", selectedFile);
+      }
+
+      const response = await axiosPrivate.post("/profileUpdate", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       console.log("Profile updated:", response.data);
+      
+      setProfileData((prev) => ({
+        ...prev,
+        profilepicture: response.data.results.updatedUser.profilepicture, // Update profile picture URL
+      }));
     } catch (error) {
       console.error("Error updating profile:", error);
     }
@@ -54,14 +66,15 @@ function Profile() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setSelectedFile(file); // Set the selected file for upload
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfileData((prev) => ({
           ...prev,
-          profilepicture: reader.result, // Update picture when a new one is uploaded
+          profilepicture: reader.result, // Update preview of the profile picture
         }));
       };
-      reader.readAsDataURL(file); // Convert the file to a base64 string
+      reader.readAsDataURL(file);
     }
   };
 
@@ -72,11 +85,7 @@ function Profile() {
         <div className="profile-header">
           {/* Profile Picture */}
           <div className="profile-pic-container">
-            <img
-              className="profile-pic"
-              src={profileData.profilepicture} // Use the profile picture from MongoDB
-              alt="Profile"
-            />
+          <img src={profileData.profilepicture} alt="Profile" />
             {isEditing && (
               <input
                 type="file"

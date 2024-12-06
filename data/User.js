@@ -30,8 +30,8 @@ const userSchema = new Schema({
     default: "First Last"
   },
   profilepicture: {
-    type: String,
-    default: "../src/assets/images/bearpfp.png",
+    data: Buffer,
+    contentType: String,
   },
   bio: {
     type: String,
