@@ -17,21 +17,7 @@
 
 .homepage-header h1 {
     font-size: 2rem;
-    color: #333;
-}
-
-.sign-up-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.sign-up-button:hover {
-    background-color: #0056b3;
+    color: #1e90ff;
 }
 
 .homepage-content {

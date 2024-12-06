@@ -1,5 +1,4 @@
 /* Use this file in roles & permissions */
-
 const jwt = require("jsonwebtoken");
 
 const verifyJWT = (req, res, next) => {

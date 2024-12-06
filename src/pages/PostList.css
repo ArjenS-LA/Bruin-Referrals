@@ -1,0 +1,69 @@
+/* Container for the PostList */
+.post-list-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Title */
+  .post-list-container h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Error Message */
+  .error-message {
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  /* Loading Message */
+  .post-list-container p {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin: 15px 0;
+  }
+  
+  /* Posts List Styling */
+  .post-list-container .post {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+  }
+  
+  /* No Posts Message */
+  .post-list-container p:last-child {
+    font-style: italic;
+    color: #888;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 600px) {
+    .post-list-container {
+      padding: 15px;
+    }
+  
+    .post-list-container h2 {
+      font-size: 20px;
+    }
+  
+    .post-list-container p {
+      font-size: 14px;
+    }
+  }
+  
