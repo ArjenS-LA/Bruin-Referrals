@@ -48,8 +48,10 @@ const PostList = () => {
   // Add a new post
   const addPost = async (newPost) => {
     try {
-      const response = await axiosPrivate.post("/posts", newPost);
-      setPosts((prevPosts) => [response.data, ...prevPosts]); // Add the new post to the top
+      await axiosPrivate.post("/posts", newPost);
+      const response = await axiosPrivate.get("/posts");
+      setPosts(response.data);
+      //setPosts((prevPosts) => [response.data, ...prevPosts]); // Add the new post to the top
     } catch (error) {
       console.error("Error adding post:", error);
       setError("Failed to add post.");

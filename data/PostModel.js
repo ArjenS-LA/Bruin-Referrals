@@ -8,6 +8,12 @@ const industries = [
   "Other",
 ];
 
+const jobTypes = [
+  "Full-Time",
+  "Part-Time",
+  "Internship",
+];
+
 const postSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
@@ -28,7 +34,7 @@ const postSchema = new mongoose.Schema(
     }, // Added field
     jobType: {
       type: String,
-      enum: ["full-time", "part-time", "internship"], // Added field
+      enum: jobTypes, // Added field
       required: true,
     },
     comments: [{

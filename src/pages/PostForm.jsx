@@ -18,7 +18,7 @@ const PostForm = ({ onAddPost }) => {
 
     if (isSubmitting) return;
 
-    if (!title || !industry || !jobType) {
+    if (!title || !description || !industry || !jobType) {
       alert('Please fill in all required fields');
       return;
     }
@@ -26,13 +26,12 @@ const PostForm = ({ onAddPost }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axiosPrivate.post("http://localhost:5000/posts", {
+      onAddPost({
         title,
         description,
         industry,
         jobType,
-      });
-      onAddPost(response.data); // Notify parent to update the post list
+      }); // Notify parent to update the post list
       setTitle("");
       setDescription("");
       setIndustry(industries[0]);

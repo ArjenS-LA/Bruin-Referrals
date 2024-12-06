@@ -46,12 +46,12 @@
   
   /* Like Button */
   .post-actions button:first-of-type {
-    background-color: #4caf50;
+    background-color: #cc139e;
     color: white;
   }
   
   .post-actions button:first-of-type:hover {
-    background-color: #45a049;
+    background-color: #e666c2;
   }
   
   /* Delete Button */
