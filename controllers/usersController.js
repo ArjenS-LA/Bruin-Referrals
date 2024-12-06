@@ -46,6 +46,7 @@ const getUser = async (req, res) => {
   const user = await User.findOne({ _id: req.params.id }).exec();
   if (!user) return res.status(404).json({ message: "User not found" });
 
+  console.log(user);
   res.json(user);
 };
 

@@ -1,31 +1,80 @@
-/* PostList.css */
+/* General Styles for the Post Form */
+.post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  max-width: 400px;
+  margin: 0 auto;
+}
 
-.post-list {
-    margin-top: 20px;
+.post-form input[type="text"],
+.post-form textarea,
+.post-form select {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.post-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.post-form select {
+  background-color: white;
+  color: #555;
+}
+
+.post-form input::placeholder,
+.post-form textarea::placeholder {
+  color: #aaa;
+}
+
+/* Submit Button */
+.post-form button {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: white;
+  background-color: #2196f3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.post-form button:hover {
+  background-color: #1e88e5;
+}
+
+.post-form button:disabled {
+  background-color: #b3e5fc;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+  .post-form {
+    padding: 12px;
   }
-  
-  .post-item {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #fff;
+
+  .post-form input[type="text"],
+  .post-form textarea,
+  .post-form select {
+    font-size: 13px;
+    padding: 8px;
   }
-  
-  .post-title {
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 5px;
+
+  .post-form button {
+    font-size: 13px;
+    padding: 8px;
   }
-  
-  .post-author {
-    font-size: 0.9rem;
-    color: #777;
-    margin-bottom: 10px;
-  }
-  
-  .post-body {
-    font-size: 1rem;
-    color: #555;
-  }
-  
+}

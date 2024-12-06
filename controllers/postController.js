@@ -49,7 +49,7 @@ const createPost = async (req, res) => {
 const getPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("author", "username email") // Include author details
+      .populate("author", "username") // Include author details
       .sort({ createdAt: -1 }); // Sort by most recent first
 
     res.status(200).json(posts);

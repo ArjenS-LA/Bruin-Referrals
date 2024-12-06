@@ -1,94 +1,124 @@
-.post-item {
+/* General Styles for the Post Component */
+.post {
     border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 15px;
-    background-color: #fff;
-}
-
-.post-title {
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 5px;
-}
-   
-.post-author {
-    font-size: 0.9rem;
-    color: #777;
-    margin-bottom: 10px;
-}
-   
-.post-description {
-    font-size: 1rem;
-    color: #555;
-}
-   
-.post-interactions {
-    margin-top: 10px;
-}
-   
-.like-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-   
-.like-button:hover {
-    background-color: #0056b3;
-}
-
-.delete-button {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    margin-left: 10px;
-    cursor: pointer;
-    border-radius: 3px;
-}
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+  }
   
-.delete-button:hover {
-    background-color: #ff3333;
-}
-
-
-.comment-form {
-    margin-top: 10px;
+  .post h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  .post p {
+    margin: 4px 0;
+    color: #555;
+  }
+  
+  .post strong {
+    color: #333;
+  }
+  
+  /* Post Actions */
+  .post-actions {
+    margin-top: 16px;
     display: flex;
-    gap: 10px;
-}
-   
-.comment-input {
-    flex-grow: 1;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-   
-.comment-submit {
-    background-color: #28a745;
-    color: #fff;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .post-actions button {
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
-    padding: 5px 10px;
     cursor: pointer;
-}
-   
-.comment-submit:hover {
-    background-color: #218838;
-}
-   
-.comment-list {
-    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .post-actions button:hover {
+    opacity: 0.9;
+  }
+  
+  /* Like Button */
+  .post-actions button:first-of-type {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .post-actions button:first-of-type:hover {
+    background-color: #45a049;
+  }
+  
+  /* Delete Button */
+  .post-actions .delete-button {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .post-actions .delete-button:hover {
+    background-color: #e53935;
+  }
+  
+  /* Comments Section */
+  .comments {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #ddd;
+  }
+  
+  .comments h4 {
+    margin: 0 0 12px;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  .comments ul {
     list-style: none;
     padding: 0;
-}
-   
-.comment-list li {
-    font-size: 0.9rem;
-    color: #333;
-    margin-bottom: 5px;
-}
+    margin: 0;
+  }
+  
+  .comments ul li {
+    margin: 8px 0;
+    padding: 8px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: #555;
+    font-size: 14px;
+  }
+  
+  /* Comment Form */
+  form {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+  }
+  
+  form input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  form button {
+    padding: 8px 16px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  form button:hover {
+    background-color: #1e88e5;
+  }
+  

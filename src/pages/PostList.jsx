@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import Post from "./Post";
 import PostForm from "./PostForm";
+import "./PostList.css"
 
 const PostList = () => {
   const [posts, setPosts] = useState([]);

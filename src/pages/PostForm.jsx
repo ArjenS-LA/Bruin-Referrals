@@ -3,7 +3,7 @@ import useAxiosPrivate from "../hooks/useAxiosPrivate";
 import "./PostForm.css";
 
 const industries = ["Technology", "Healthcare", "Business", "Research", "Other"];
-const jobTypes = ["full-time", "part-time", "internship"];
+const jobTypes = ["Full-Time", "Part-Time", "Internship"];
 
 const PostForm = ({ onAddPost }) => {
   const [title, setTitle] = useState("");
