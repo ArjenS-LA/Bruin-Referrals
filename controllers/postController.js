@@ -160,10 +160,15 @@ const searchPosts = async (req, res) => {
     const criteria = {};
 
     if (startDate && endDate) {
-      criteria.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+      if(startDate === endDate){
+        criteria.createdAt = { $gte: new Date(startDate) };
+      }
+      else{
+        criteria.createdAt = {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        };
+      }
     } else if (startDate) {
       criteria.createdAt = { $gte: new Date(startDate) };
     } else if (endDate) {

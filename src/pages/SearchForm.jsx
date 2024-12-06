@@ -1,6 +1,8 @@
 // /src/pages/SearchPosts.js
 import React, { useState } from "react";
 import axios from "../api/axios";
+//import "./register.css"
+import "./SearchForm.css"
 
 const SearchForm = () => {
   const [startDate, setStartDate] = useState("");

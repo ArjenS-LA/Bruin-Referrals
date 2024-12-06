@@ -51,6 +51,11 @@
     font-style: italic;
     color: #888;
   }
+
+  .observer {
+    height: 20px; /* Small height to act as a trigger */
+    background-color: rgba(255, 0, 0, 0.2); /* Light red for visibility */
+  }
   
   /* Responsive Design */
   @media (max-width: 600px) {
