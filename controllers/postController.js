@@ -94,6 +94,8 @@ const likePost = async (req, res) => {
 
     // Populate the post with like details if needed
     await post.populate('author', 'username');
+    await post.populate("comments.author", "username")
+
 
     res.status(200).json(post);
   } catch (error) {
