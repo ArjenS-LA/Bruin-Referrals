@@ -3,8 +3,6 @@ const router = express.Router();
 const usersController = require("../../controllers/usersController");
 const ROLES_LIST = require("../../config/roles_list");
 const verifyRoles = require("../../middleware/verifyRoles");
-const verifyJWT = require("../../middleware/verifyJWT");
-
 
 router
   .route("/")
@@ -17,7 +15,7 @@ router
 
 router
   .route("/me")
-  .get(verifyJWT, usersController.getCurrentUser);
+  .get(usersController.getCurrentUser);
 
 module.exports = router;
 

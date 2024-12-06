@@ -1,0 +1,134 @@
+/* General Form Container Styling */
+div {
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+h2 {
+    text-align: center;
+    color: #0044cc;
+    margin-bottom: 20px;
+}
+
+form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Fields */
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+input[type="date"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+input:focus,
+select:focus {
+    border-color: #0044cc;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 68, 204, 0.2);
+}
+
+/* Buttons */
+button {
+    background-color: #0044cc;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0033aa;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Search Results */
+h3 {
+    margin-top: 30px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    color: #444;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    background-color: #f4f4f4;
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+ul li h4 {
+    margin: 0 0 10px;
+    color: #0044cc;
+}
+
+ul li p {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+ul li strong {
+    font-weight: bold;
+}
+
+p.no-results {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+}
+
+/* Loading and Dismiss Button */
+p {
+    font-size: 14px;
+    color: #555;
+}
+
+.dismiss-button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dismiss-button:hover {
+    background-color: #cc0000;
+}
+  
