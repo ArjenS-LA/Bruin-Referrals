@@ -9,6 +9,7 @@ import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
 import Unauthorized from "./pages/Unauthorized";
 import Admin from "./pages/Admin";
+import Chatbot from "./Chatbot"
 
 import "./App.css";
 
@@ -33,6 +34,7 @@ function App() {
   return (
     <div className="main">
       {shouldShowSidebar() && <Sidebar />}
+      {shouldShowSidebar() && <Chatbot />}
       <Routes>
         {/* <Route
           path="/"
