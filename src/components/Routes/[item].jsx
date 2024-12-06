@@ -3,6 +3,7 @@ import { ArrowBackIcon } from "../Icons";
 import Home from "../../pages/Home";
 import Admin from "../../pages/Admin";
 import Unauthorized from "../../pages/Unauthorized";
+import SearchForm from "../../pages/SearchForm";
 //import Login from "../../pages/Login";
 //import Signup from "../../pages/SignUp";
 import Profile from "../../pages/Profile";
@@ -12,6 +13,7 @@ const pageComponents = {
   admin: Admin,
   unauthorized: Unauthorized,
   profile: Profile
+  search: SearchForm,
 };
 
 const Item = ({ page }) => {

@@ -49,8 +49,8 @@ export const SIDEBAR_DATA = [
   },
   {
     id: 7,
-    name: "pages",
-    path: "pages",
+    name: "search",
+    path: "search",
     icon: <PagesIcon />,
   },
   {
