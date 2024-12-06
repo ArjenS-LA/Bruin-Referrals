@@ -12,7 +12,7 @@ const pageComponents = {
   home: Home,
   admin: Admin,
   unauthorized: Unauthorized,
-  profile: Profile
+  profile: Profile,
   search: SearchForm,
 };
 
