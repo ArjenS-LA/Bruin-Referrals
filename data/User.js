@@ -77,7 +77,7 @@ const userSchema = new Schema(
 /**
  * Pre-save middleware to hash passwords before saving.
  */
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async  function (next) {
   if (!this.isModified("password")) return next();
   try {
     const salt = await bcrypt.genSalt(10);
@@ -89,8 +89,7 @@ userSchema.pre("save", async function (next) {
 });
 
 /**
- * Generates a password reset token.
- *
+  Generates a password reset token.
  * @returns {string} Reset token.
  */
 userSchema.methods.generatePasswordReset = function () {
@@ -99,8 +98,7 @@ userSchema.methods.generatePasswordReset = function () {
   return this.resetPasswordToken;
 };
 
-/**
- * Virtual field for user profile URL.
+/* Virtual field for user profile URL.
  */
 userSchema.virtual("profileURL").get(function () {
   return `/users/${this._id}/profile`;
