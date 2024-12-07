@@ -96,7 +96,7 @@ export const ItemName = styled.span`
 export const SidebarContainer = styled.div`
   position: absolute;
   left: 0;
-  width: ${({ displaySidebar }) => (displaySidebar ? "14rem" : "5rem")};
+  width: ${({ displaySidebar }) => (displaySidebar ? "15rem" : "5rem")};
   height: 100vh;
   padding: 0.75rem;
   background: #f3f4f4;

@@ -4,7 +4,7 @@ import "./Post.css";
 
 const Post = ({
   _id,
-  title, 
+  title,
   description,
   author,
   likes = [],
@@ -20,7 +20,9 @@ const Post = ({
 
   const handleLike = async () => {
     try {
-      const response = await axiosPrivate.patch(`http://localhost:5000/posts/${_id}/like`);
+      const response = await axiosPrivate.patch(
+        `http://localhost:5000/posts/${_id}/like`
+      );
       onLike(response.data); // Update post in the parent component
     } catch (error) {
       console.error("Error liking post:", error);
@@ -29,9 +31,12 @@ const Post = ({
 
   const handleAddComment = async (commentText) => {
     try {
-      const response = await axiosPrivate.post(`http://localhost:5000/posts/${_id}/comments`, {
-        text: commentText,
-      });
+      const response = await axiosPrivate.post(
+        `http://localhost:5000/posts/${_id}/comments`,
+        {
+          text: commentText,
+        }
+      );
       onAddComment(_id, response.data); // Update comments in the parent component
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -41,7 +46,9 @@ const Post = ({
   const handleDelete = async () => {
     try {
       // Show confirmation dialog
-      const confirmDelete = window.confirm("Are you sure you want to delete this post?");
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this post?"
+      );
       if (!confirmDelete) return;
 
       const response = await axiosPrivate.delete(`/posts/${_id}`);
@@ -56,23 +63,27 @@ const Post = ({
   return (
     <div className="post">
       <h3>{title}</h3>
-      <p><strong>Author:</strong> {author.username || "Anonymous"}</p>
-      <p><strong>Industry:</strong> {industry}</p>
-      <p><strong>Job Type:</strong> {jobType}</p>
-      <p>{description}</p>
+      <p>
+        <>{description}</>
+      </p>
+      <p>
+        <strong>Author:</strong> {author.username || "Anonymous"}
+      </p>
+      <p>
+        <strong>Industry:</strong> {industry}
+      </p>
+      <p>
+        <strong>Job Type:</strong> {jobType}
+      </p>
 
       <div className="post-actions">
         <button onClick={handleLike}>{likes.length} Likes</button>
 
         {/* Only show delete button if current user is the post author */}
-        
-        <button 
-          onClick={handleDelete} 
-          className="delete-button"
-        >
+
+        <button onClick={handleDelete} className="delete-button">
           Delete Post
         </button>
-        
       </div>
 
       <div className="comments">
@@ -80,7 +91,7 @@ const Post = ({
         <ul>
           {comments.map((comment, index) => (
             <li key={index}>
-              {comment.text} - {comment.author?.username || 'Anonymous'}
+              {comment.text} - {comment.author?.username || "Anonymous"}
             </li>
           ))}
         </ul>
