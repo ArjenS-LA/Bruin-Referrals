@@ -21,13 +21,13 @@ const Item = ({ page }) => {
 
   return (
     <div id="page">
-      {page !== "home" && (
+      {/* {page !== "home" && (
         <Link to="/">
           <button className="btn">
             <ArrowBackIcon /> Back to Home
           </button>
         </Link>
-      )}
+      )} */}
       {PageComponent ? (
         <PageComponent />
       ) : (
