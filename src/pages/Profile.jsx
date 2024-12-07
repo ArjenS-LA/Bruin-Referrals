@@ -150,11 +150,6 @@ function Profile() {
             ) : (
               <div className="profile-bio">{profileData.bio}</div>
             )}
-            {isEditing && (
-              <div className="character-count">
-                {profileData.bio.length}
-              </div>
-            )}
           </div>
         </div>
         <button onClick={isEditing ? handleSaveClick : () => setIsEditing(true)}>
