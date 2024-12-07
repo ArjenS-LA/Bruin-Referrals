@@ -1,6 +1,16 @@
-# Getting Started with Create React App
+# Getting Started with Bruin Referrals!
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the Github repository for Bruin Referrals. The project members are 
+Arnav Goel, Arjen Singh, Ricardo Rios, and Monica Pal.
+
+## Before running any scripts
+
+Clone the repository in the directory you wish:
+
+'''sh
+git clone https://github.com/ArjenS-LA/Bruin-Referrals
+cd BruinShare
+npm install --save
 
 ## Available Scripts
 
@@ -11,60 +21,50 @@ In this project directory, you can run:
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
+Also runs the backend server\
+on [http://localhost:5000](http://localhost:3000)
+
+Calls will be made between both clients through Axios and Cors.\
+
 The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The server will reload when you make changes.\
 
-### `npm test`
+## Setting up the .env
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+In the root directory, add a file .env
 
-### `npm run build`
+Add: 
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+'''sh
+ACCESS_TOKEN_SECRET=xxxxxxxxxxxx
+REFRESH_TOKEN_SECRET=xxxxxxxxxxxx
+DATABASE_URI=xxxxxxxxxxxx
+REACT_APP_API_KEY=sxxxxxxxxxxxx
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+For the ACCESS_TOKEN_SECRET and REFERSH_TOKEN_SECRET, you can generate them by
+using the shell command:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+'''sh
+require('crypto').randomBytes(64).toString('hex')
 
-### `npm run eject`
+Run the command and past it into each field individually (Run it twice to
+fill the fields) 
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+For the DATABASE_URI you can generate your own cluster in MongoDB to get a
+fresh collection, or contact a developer to get the original collection
+with all the users and posts
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+For the REACT_APP_API_KEY, generate an openai api key and fill the field.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Key Features
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Postings with ability to like, comment, delete
+Meaningful Search of Posts based upon entered criteria
+User Profile storing profile pic, bio, first name/last name, etc.
+OpenAI Chatbot with ability to answer all prompts
 
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
