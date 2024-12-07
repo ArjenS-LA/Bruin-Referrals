@@ -10,14 +10,29 @@
 
 .homepage-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column; /* Center contents vertically in a column layout */
+    justify-content: center; /* Center contents along the main axis */
+    align-items: center; /* Center contents along the cross axis */
+    text-align: center; /* Align the text in the center */
     margin-bottom: 20px;
 }
 
 .homepage-header h1 {
     font-size: 2rem;
     color: #1e90ff;
+    margin: 0; /* Remove default margins to ensure proper alignment */
+}
+
+.homepage-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* Adds spacing below the logo */
+}
+
+.homepage-logo img {
+    max-width: 150px; /* Restrict the size of the logo */
+    height: auto; /* Maintain aspect ratio */
 }
 
 .homepage-content {

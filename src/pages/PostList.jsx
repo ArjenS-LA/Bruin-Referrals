@@ -12,22 +12,6 @@ const PostList = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const axiosPrivate = useAxiosPrivate();
 
-  //Fetch user
-  /*useEffect(() => {
-    console.log("useEffect triggered");
-    const fetchCurrentUser = async () => {
-      try {
-        const response = await axiosPrivate.get("/user/me");
-        console.log("Fetched current user:", response.data.username);
-        setCurrentUser(response.data.username);
-      } catch (error) {
-        console.error("Error fetching current user:", error);
-      }
-    };
-
-    fetchCurrentUser();
-  }, [axiosPrivate]);*/
-
   // Fetch all posts
   useEffect(() => {
     console.log("useEffectPosts triggered");

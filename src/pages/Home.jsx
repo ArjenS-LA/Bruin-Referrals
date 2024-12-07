@@ -3,6 +3,7 @@ import "./Button.css";
 import "../App.css";
 import "./HomePage.css"; // Separate file for better styling management
 import PostList from "./PostList";
+import BrandLogo from "../assets/images/bruinbearlogo.png";
 
 function HomePage() {
   const [userInput, setUserInput] = useState("");
@@ -11,28 +12,20 @@ function HomePage() {
     setUserInput(event.target.value);
   };
 
-  const goToSignIn = () => {
-    window.location.href = "/signin";
-  };
-
   return (
     <div className="homepage-container">
       <header className="homepage-header">
-        <h1>Welcome to Bruin Referrals</h1>
+        <h1>Welcome to Bruin Referrals!</h1>
       </header>
 
-      <div className="homepage-content">
-        <div className="input-container">
-          <input
-            type="text"
-            placeholder="Type something..."
-            value={userInput}
-            onChange={handleInputChange}
-            className="user-input"
-          />
-          <p className="input-display">You typed: {userInput}</p>
-        </div>
+      <div class="homepage-logo">
+        <img
+          src={BrandLogo}
+          alt="Brand logo"
+        />
+      </div>
 
+      <div className="homepage-content">
         <PostList />
       </div>
     </div>
