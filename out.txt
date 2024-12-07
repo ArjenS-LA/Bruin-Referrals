@@ -1,0 +1,1625 @@
+const { model } = require("mongoose");
+const nodemailer = require("nodemailer");
+
+const sendEmail = async (options) => {
+  const { email, subject, message } = options;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.HOST,
+      service: process.env.SERVICE,
+      port: process.env.PORT,
+      auth: {
+        user: process.env.USER,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+      to: email,
+      subject: subject,
+      text: message,
+    });
+
+    await transporter.sendMail(message);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500).message("Error sending email");
+  }
+};
+const verifyRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req?.roles) return res.sendStatus(403);
+    const rolesArray = [...allowedRoles];
+    console.log(rolesArray);
+    console.log(req.roles);
+    const result = req.roles.some((role) => rolesArray.includes(role));
+    if (!result) return res.sendStatus(401);
+    next();
+  };
+};
+
+module.exports = verifyRoles;
+/* Use this file in roles & permissions */
+const jwt = require("jsonwebtoken");
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+  console.log(authHeader); // Bearer<token>
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) return res.sendStatus(403);
+    req.user = decoded.UserInfo.username;
+    req.roles = decoded.UserInfo.roles;
+    next();
+  });
+};
+
+module.exports = verifyJWT;const multer = require('multer');
+const path = require('path');
+
+// Configure storage options
+const Storage = multer.memoryStorage(); // Store files in memory buffer
+
+const upload = multer({
+  storage: Storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  },
+});
+
+module.exports = upload;require("dotenv").config();
+const mongoose = require("mongoose");
+const User = require("./data/User");
+const ROLES_LIST = require("./config/roles_list");
+
+// Database connection
+mongoose.connect(process.env.DATABASE_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+async function addAdminRoleToUser(username) {
+  try {
+    const user = await User.findOne({ username }).exec();
+
+    if (!user) {
+      console.log(`User '${username}' not found.`);
+      return;
+    }
+
+    // Assign the Admin role
+    user.roles.Admin = ROLES_LIST.Admin;
+    await user.save();
+
+    console.log(`Admin role added to user '${username}'.`);
+
+    // Close the database connection
+    mongoose.connection.close();
+  } catch (error) {
+    console.error(`Error adding Admin role to user '${username}':`, error);
+    mongoose.connection.close();
+  }
+}
+
+// Replace 'someusername' with the actual username
+addAdminRoleToUser("rrios");
+
+//config roles_list.js
+
+const ROLES_LIST = {
+  Admin: 5150,
+  Editor: 1984,
+  User: 2001,
+};
+
+module.exports = ROLES_LIST;
+const mongoose = require("mongoose");
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.DATABASE_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB Connected...");
+  } catch (err) {
+    console.error(err.message);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+require("dotenv").config();
+const express = require("express");
+const path = require("path");
+const app = express();
+const verifyJWT = require("./middleware/verifyJWT");
+const cookieParser = require("cookie-parser");
+const mongoose = require("mongoose");
+const connectDB = require("./config/dbConn");
+const PORT = process.env.PORT || 5000;
+const cors = require("cors");
+
+// Connect to MongoDB
+connectDB();
+
+// Parse incoming JSON data
+app.use(express.json());
+
+//Handle cross origin
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    //methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    credentials: true,
+  })
+);
+
+// Parse incoming cookies
+app.use(cookieParser());
+
+// The API Routes
+app.use("/register", require("./src/components/Routes/register"));
+app.use("/auth", require("./src/components/Routes/auth"));
+app.use("/refresh", require("./src/components/Routes/refresh"));
+app.use("/logout", require("./src/components/Routes/logout"));
+app.use("/posts", require("./src/components/Routes/postRoute"));
+
+// Verify JWT for all routes
+app.use(verifyJWT);
+app.use("/users", require("./src/api/users"));
+app.use("/profile", require("./src/components/Routes/profileUpdate"));
+app.use("/profileUpdate", require("./src/components/Routes/profileUpdate"))
+
+// Serve React App for all other routes
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "./build/index.html"));
+});
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error" });
+});
+
+// Routes with JWT verification
+
+// Serve static files from React app
+app.use(express.static(path.join(__dirname, "./public")));
+
+// Connect to MongoDB
+mongoose.connection.once("open", () => {
+  console.log("Connected to MongoDB");
+  // Start the server to connect 
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+});
+const User = require("../data/User");
+
+const getProfile = async (req, res) => {
+  try {
+    const username = req.user;
+
+    console.log(username);
+
+    const user = await User.findOne({ username: username }).exec();
+
+    if (!user) {
+      return res.status(403).json({ message: "User not found" });
+    }
+
+    // Convert binary data to Base64
+    const profileData = {
+      name: user.name,
+      bio: user.bio,
+      about: user.about,
+      profilepicture: user.profilepicture.data
+        ? `data:${user.profilepicture.contentType};base64,${user.profilepicture.data.toString("base64")}`
+        : null, // Return null if no profile picture is available
+    };
+
+    res.status(200).json(profileData);
+  } catch (error) {
+    console.error("Error fetching profile data:", error);
+    res.status(500).json({ message: "Error fetching profile data" });
+  }
+};
+
+const handleEdit = async (req, res) => {
+  try {
+    const { name, bio, about } = req.body;
+    const username = req.user; 
+
+    const updates = { name, bio, about };
+
+    // Handle file upload (if present)
+    if (req.file) {
+      updates.profilepicture = {
+        data: req.file.buffer, // Binary data from Multer's memory storage
+        contentType: req.file.mimetype, // MIME type (e.g., 'image/jpeg')
+      };
+    }
+
+    // Define options for findOneAndUpdate
+    const options = {
+      new: true, // Return the updated document
+      runValidators: true, // Run schema validators
+    };
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username: username },
+      { $set: updates },
+      options
+    ).exec();
+
+    if (!updatedUser) {
+      return res.status(403).json({ message: "User not found." });
+    }
+
+    res.status(200).json({ 
+      status: "Success",
+      results: {
+        updatedUser: {
+          name: updatedUser.name,
+          bio: updatedUser.bio,
+          about: updatedUser.about,
+          profilepicture: updatedUser.profilepicture.data
+            ? `data:${updatedUser.profilepicture.contentType};base64,${updatedUser.profilepicture.data.toString("base64")}`
+            : null, // Return null if no profile picture is available
+        },
+      },
+    });
+  } catch (error) {
+    console.log("Error updating profile:", error);
+
+    // Handle duplicate key error (e.g., username or email already exists)
+    if (error.code === 11000) {
+      const duplicatedField = Object.keys(error.keyValue)[0];
+      return res
+        .status(400)
+        .json({ message: `The ${duplicatedField} is already in use.` });
+    }
+
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      const messages = Object.values(error.errors).map((val) => val.message);
+      return res
+        .status(400)
+        .json({ message: "Validation Error.", errors: messages });
+    }
+
+    res.status(500).json({ message: "Internal Server Error." });
+  }
+};
+
+
+module.exports = { getProfile, handleEdit };const Post = require("../data/PostModel");
+const User = require("../data/User");
+
+// Create a post
+const createPost = async (req, res) => {
+  try {
+    const { title, description, industry, jobType } = req.body;
+    const username = req.user;
+
+    // Validate required fields
+    if (!title || !industry || !jobType) {
+      return res
+        .status(400)
+        .json({ message: "Title, industry, and job type are required." });
+    }
+
+    console.log("Retrieving author...");
+    // Retrieve ObjectId from req.user
+    const user = await User.findOne({ username: username }).exec();
+    if (!user) {
+      console.log("User not found");
+      res.status(404).json({ message: "Author not found" });
+    }
+
+    const author = user._id;
+
+    console.log("Creating post...");
+
+    // Create a new post
+    const newPost = await Post.create({
+      title,
+      description,
+      industry,
+      jobType,
+      author,
+      likes: [], // Explicitly initialize likes
+      comments: [], // Explicitly initialize comments
+    });
+
+    //await newPost.populate('author', 'username');
+
+    res.status(201).json(newPost);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ message: "Failed to create post." });
+  }
+};
+
+// Get all posts
+const getPosts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("author", "username") // Include author details
+      .populate("comments.author", "username")
+      .sort({ createdAt: -1 }); // Sort by most recent first
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Failed to fetch posts." });
+  }
+};
+
+// Like a post
+const likePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user; // Assuming req.user contains the username
+
+    // Find the user to get their _id
+    const user = await User.findOne({ username: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    // Check if user has already liked the post
+    const alreadyLiked = post.likes.includes(user._id);
+
+    if (alreadyLiked) {
+      // Unlike the post
+      post.likes = post.likes.filter(
+        (likeId) => likeId.toString() !== user._id.toString()
+      );
+    } else {
+      // Like the post
+      post.likes.push(user._id);
+    }
+
+    await post.save();
+
+    // Populate the post with like details if needed
+    await post.populate("author", "username");
+    await post.populate("comments.author", "username");
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.error("Error liking post:", error);
+    res.status(500).json({ message: "Failed to like post." });
+  }
+};
+
+// Add a comment to a post
+const addCommentToPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    const userId = req.user; // Assuming req.user contains the username
+
+    // Find the user to get their _id
+    const user = await User.findOne({ username: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    if (!text) {
+      return res.status(400).json({ message: "Comment text is required." });
+    }
+
+    post.comments.push({
+      text,
+      author: user._id,
+    });
+    await post.save();
+
+    await post.populate("author", "username");
+
+    await post.populate({
+      path: "comments.author",
+      select: "username",
+    });
+
+    res.status(201).json(post);
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ message: "Failed to add comment." });
+  }
+};
+
+const searchPosts = async (req, res) => {
+  try {
+    const {
+      startDate,
+      endDate,
+      industry,
+      jobType,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const criteria = {};
+
+    if (startDate && endDate) {
+      if(startDate === endDate){
+        criteria.createdAt = { $gte: new Date(startDate) };
+      }
+      else{
+        criteria.createdAt = {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate),
+        };
+      }
+    } else if (startDate) {
+      criteria.createdAt = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      criteria.createdAt = { $lte: new Date(endDate) };
+    }
+
+    if (industry) {
+      criteria.industry = industry;
+    }
+
+    if (jobType) {
+      criteria.jobType = jobType;
+    }
+
+    // Add pagination withtin searchPost
+
+    const pageNumber = parseInt(page) || 1;
+    const pageSize = parseInt(limit) || 10;
+
+    const posts = await Post.find(criteria)
+      .skip((pageNumber - 1) * pageSize)
+      .limit(pageSize)
+      .sort({ createdAt: -1 })
+      .populate("author likes comments.author");
+
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const username = req.user; // username from JWT
+
+    // Find the user to get their _id
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Find the post and check if the current user is the author
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found." });
+    }
+
+    // Check if the current user is the author of the post
+    if (post.author.toString() !== user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this post." });
+    }
+
+    // Delete the post
+    await Post.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Post deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ message: "Failed to delete post." });
+  }
+};
+
+module.exports = {
+  createPost,
+  getPosts,
+  searchPosts,
+  likePost,
+  addCommentToPost,
+  deletePost,
+};
+const User = require("../data/User");
+
+const handleLogout = async (req, res) => {
+  // On client, also delete the access token
+
+  const cookies = req.cookies;
+
+  // Check if refresh token exists
+  if (!cookies?.jwt) return res.sendStatus(204);
+  const refreshToken = cookies.jwt;
+
+  // is refresh token in database?
+  const foundUser = await User.findOne({ refreshToken }).exec();
+  if (!foundUser) {
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+    });
+    return res.sendStatus(204);
+  }
+
+  // Delete refresh token in userDb
+  foundUser.refreshToken = "";
+  const result = await foundUser.save();
+  console.log(result);
+
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+  });
+  res.sendStatus(200);
+};
+
+module.exports = { handleLogout };
+const User = require("../data/User");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const handleLogin = async (req, res) => {
+  const { username, email, password } = req.body;
+
+  // ADD EMAIL LOGIN LATER
+  // (Username or Email) and password are required
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
+
+  // Check if user exists
+  const foundUser = await User.findOne({ username: username }).exec();
+  if (!foundUser) return res.status(401).json({ message: "User not found" });
+
+  // Check if password is correct
+  const isPasswordCorrect = await bcrypt.compare(password, foundUser.password);
+  if (!isPasswordCorrect)
+    return res.status(401).json({ message: "Incorrect password" });
+
+  // Role-based access control
+  const roles = Object.values(foundUser.roles).filter(Boolean);
+
+  // Create JWTs
+  const accessToken = jwt.sign(
+    {
+      UserInfo: {
+        username: foundUser.username,
+        roles: roles,
+      },
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "10m" }
+  );
+  const refreshToken = jwt.sign(
+    { username: foundUser.username },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "1d" }
+  );
+
+  // Save refresh token to database
+  foundUser.refreshToken = refreshToken;
+  const result = await foundUser.save();
+  console.log(result);
+  console.log(roles);
+
+  /* Store access token in http cookie */
+  res.cookie("jwt", refreshToken, {
+    httpOnly: true,
+    sameSite: "None",
+    secure: true,
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+
+  res.status(200).json({ roles, accessToken });
+  // Return success message
+  // res.status(200).json({ message: "Login successful" });
+};
+
+module.exports = { handleLogin };
+const User = require("../data/User");
+const bcrypt = require("bcrypt");
+
+// Define controller object
+const handleNewUser = async (req, res) => {
+  const { username, email, password } = req.body;
+
+  // Username, pswd, email are required
+  if (!username || !email || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username, email, and password are required" });
+  }
+
+  // Check if user already exists
+  const userExists = await User.findOne({ username: username }).exec();
+  if (userExists)
+    return res.status(409).json({ message: "User already exists" });
+  try {
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create new user object
+    const result = await User.create({
+      username: username,
+      email: email,
+      password: hashedPassword,
+    });
+
+    // Log success message
+    console.log(result);
+    // Return success message
+    res.status(201).json({ success: `User created ${username} successfully` });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = { handleNewUser };
+const User = require("../data/User");
+
+const getAllUsers = async (req, res) => {
+  const users = await User.find();
+  if (!users) return res.status(404).json({ message: "No users found" });
+  res.json(users);
+};
+
+
+const getCurrentUser = async (req, res) => {
+  // req.user should contain the username from your JWT middleware
+  if (!req?.user) return res.status(401).json({ message: "Unauthorized" });
+
+  try {
+    const user = await User.findOne({ username: req.user })
+      .select('-password') // Exclude password field
+      .exec();
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({
+      username: user.username,
+      roles: user.roles,
+      _id: user._id
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching current user", error: error.message });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  if (!req?.body?.id)
+    return res.status(400).json({ message: "No user id provided" });
+
+  const user = await User.findOne({ _id: req.body.id }).exec();
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const result = await User.deleteOne({ _id: req.body.id }).exec();
+  res.json(result);
+};
+
+const getUser = async (req, res) => {
+  if (!req?.params?.id)
+    return res.status(400).json({ message: "No user id provided" });
+
+  const user = await User.findOne({ _id: req.params.id }).exec();
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  console.log(user);
+  res.json(user);
+};
+
+module.exports = { getAllUsers, deleteUser, getUser, getCurrentUser };
+const User = require("../data/User");
+const jwt = require("jsonwebtoken");
+
+const handleRefreshToken = async (req, res) => {
+  const cookies = req.cookies;
+
+  // Check if refresh token exists
+  if (!cookies?.jwt) return res.sendStatus(401);
+  console.log(jwt);
+  const refreshToken = cookies.jwt;
+
+  // Check if user exists
+  const foundUser = await User.findOne({ refreshToken }).exec();
+  if (!foundUser) return res.sendStatus(403);
+
+  // Evaluate refresh token
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    if (err || foundUser.username !== decoded.username)
+      return res.sendStatus(403);
+    const roles = Object.values(foundUser.roles);
+    const accessToken = jwt.sign(
+      {
+        UserInfo: {
+          username: decoded.username,
+          roles: roles,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "1m" }
+    );
+    res.json({ roles, accessToken });
+  });
+};
+
+module.exports = { handleRefreshToken };
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  roles: {
+    User: {
+      type: Number,
+      default: 2001,
+    },
+    Editor: Number,
+    Admin: Number,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  //make requireed later
+  name: {
+    type: String,
+    default: "First Last"
+  },
+  profilepicture: {
+    data: Buffer,
+    contentType: String,
+  },
+  bio: {
+    type: String,
+    default: "Bio",
+  },
+  about: {
+    type: String,
+    default: "Tell us about yourself...",
+  },
+  refreshToken: String,
+});
+
+module.exports = mongoose.model("User", userSchema);
+const mongoose = require("mongoose");
+
+const industries = [
+  "Technology",
+  "Healthcare",
+  "Business",
+  "Research",
+  "Other",
+];
+
+const jobTypes = [
+  "Full-Time",
+  "Part-Time",
+  "Internship",
+];
+
+const postSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: String,
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    }, // Added field
+    likes: [{ 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User" 
+    }],
+    industry: {
+      type: String,
+      enum: industries,
+      required: true,
+    }, // Added field
+    jobType: {
+      type: String,
+      enum: jobTypes, // Added field
+      required: true,
+    },
+    comments: [{
+      text: { type: String, required: true },
+      author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+      createdAt: { type: Date, default: Date.now }
+    }],
+  }, // Added field
+  { timestamps: true }
+);
+
+const Post = mongoose.model("Post", postSchema);
+
+module.exports = Post;import { createContext, useState } from "react";
+
+const AuthContext = createContext({});
+
+export const AuthProvider = ({ children }) => {
+  const [auth, setAuth] = useState({});
+  const [persist, setPersist] = useState(
+    JSON.parse(localStorage.getItem("persist")) || false
+  );
+
+  return (
+    <AuthContext.Provider value={{ auth, setAuth, persist, setPersist }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export default AuthContext;
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+// src/index.js
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./context/AuthProvider";
+import ReactDOM from "react-dom";
+import App from "./App";
+
+ReactDOM.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/*" element={<App />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
+  document.getElementById("root")
+);
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+import styled from "styled-components";
+
+/* JavaScript interpolation inside a Styled Components template literal */
+
+/* See: https://styled-components.com/
+    for more information about library
+    GROUP: use for future use of components in pages, user
+    customization etc.  */
+
+// Children attributes using Styled Components library
+export const Children = styled.div`
+  width: 100%;
+  height: 100%;
+  margin-left: ${({ displaySidebar }) => (displaySidebar ? "15rem" : "5rem")};
+  @media (max-width: 468px) {
+    margin-left: 5rem;
+  }
+`;
+
+export const SidebarWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+`;
+
+export const SidebarLogoWrapper = styled.div`
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: ${({ displaySidebar }) =>
+    displaySidebar ? "space-between" : "center"};
+  align-items: center;
+  @media (max-width: 468px) {
+    justify-content: center;
+  }
+`;
+
+export const SidebarLogo = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @media (max-width: 468px) {
+    display: none;
+  }
+`;
+
+export const SidebarBrand = styled.span`
+  display: ${({ displaySidebar }) => (displaySidebar ? "block" : "none")};
+`;
+
+export const SidebarToggler = styled.button`
+  cursor: pointer;
+  display: ${({ displaySidebar }) => (displaySidebar ? "block" : "none")};
+  @media (max-width: 468px) {
+    display: block;
+  }
+`;
+
+// SidebarItem styles
+export const ItemsList = styled.ul`
+  list-style: none;
+`;
+
+export const ItemContainer = styled.li`
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.25rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  &:hover {
+    background: #eaeced;
+  }
+  &.active {
+    background-color: #dbe4f3;
+  }
+`;
+
+export const ItemWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  color: #7c7788;
+`;
+
+export const ItemName = styled.span`
+  margin-left: ${({ displaySidebar }) => (displaySidebar ? "0.5rem" : "0")};
+  display: ${({ displaySidebar }) => (displaySidebar ? "block" : "none")};
+  text-transform: capitalize;
+`;
+
+// Sidebar Container
+/* Hover Behavior, Dynamic Width, Smooth Transition, 
+    Nested Component Styling, Scrollbar Styling,
+    Responsive Design */
+export const SidebarContainer = styled.div`
+  position: absolute;
+  left: 0;
+  width: ${({ displaySidebar }) => (displaySidebar ? "14rem" : "5rem")};
+  height: 100vh;
+  padding: 0.75rem;
+  background: #f3f4f4;
+  transition: width 350ms ease;
+  border-right: 1px solid #d4d8dd;
+  overflow-x: hidden;
+  ${({ displaySidebar }) =>
+    displaySidebar && "box-shadow: 8px 0px 12px 0px rgba(0,0,0,0.1)"};
+  ${ItemWrapper} {
+    justify-content: ${({ displaySidebar }) => !displaySidebar && "center"};
+  }
+  &:hover {
+    ${({ displaySidebar }) =>
+      !displaySidebar && "box-shadow: 8px 0px 12px 0px rgba(0,0,0,0.1)"};
+    @media (min-width: 468px) {
+      width: ${({ displaySidebar }) => !displaySidebar && "15rem"};
+      ${SidebarLogoWrapper} {
+        justify-content: ${({ displaySidebar }) =>
+          !displaySidebar && "space-between"};
+      }
+      ${SidebarBrand} {
+        display: ${({ displaySidebar }) => !displaySidebar && "block"};
+      }
+      ${SidebarToggler} {
+        display: ${({ displaySidebar }) => !displaySidebar && "block"};
+      }
+      ${ItemWrapper} {
+        justify-content: ${({ displaySidebar }) =>
+          !displaySidebar && "flex-start"};
+      }
+      ${ItemName} {
+        display: ${({ displaySidebar }) => !displaySidebar && "block"};
+        margin-left: ${({ displaySidebar }) => !displaySidebar && "0.5rem"};
+      }
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+    background-color: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #eaeced;
+    &:hover {
+      background: #d5e0f3;
+    }
+  }
+  @media (max-width: 468px) {
+    width: 5rem;
+  }
+`;
+import { Outlet } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { dummyData } from ".";
+import { Sidebar } from ".";
+
+const Layout = () => {
+  const location = useLocation();
+  const hiddenSidebarRoutes = ["/login", "/signup"];
+  const shouldShowSidebar = !hiddenSidebarRoutes.includes(location.pathname);
+
+  return (
+    <main className="App">
+      {shouldShowSidebar && <Sidebar />}
+      <Outlet />
+    </main>
+  );
+};
+
+export default Layout;
+// File contains Icons for the Sidebar/Navbar
+// Can replace the icons with any other icons from Material-UI
+// src/components/Icons.js
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import WebOutlinedIcon from "@mui/icons-material/WebOutlined";
+import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
+import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import SubjectOutlinedIcon from "@mui/icons-material/SubjectOutlined";
+import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+
+import ArrowRightOutlinedIcon from "@mui/icons-material/ArrowRightOutlined";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
+export {
+  HomeOutlinedIcon as HomeIcon,
+  WebOutlinedIcon as LayoutIcon,
+  CalendarMonthOutlinedIcon as CalendarIcon,
+  PersonOutlineOutlinedIcon as UserIcon,
+  SubjectOutlinedIcon as InvoiceIcon,
+  GppGoodOutlinedIcon as RolesIcon,
+  CalendarTodayOutlinedIcon as PagesIcon,
+  AdminPanelSettingsOutlinedIcon as AuthIcon,
+  ArrowBackIcon,
+  ArrowRightOutlinedIcon as ArrowIcon,
+};
+import { Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import useRefreshToken from "../hooks/useRefreshToken";
+import useAuth from "../hooks/useAuth";
+
+const PersistLogin = () => {
+  const refresh = useRefreshToken();
+  const { auth, persist } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkRefresh = async () => {
+      try {
+        await refresh();
+      } catch (error) {
+        console.error("Error refreshing token: ", error);
+      } finally {
+        isMounted && setLoading(false);
+      }
+    };
+
+    !auth?.accessToken ? checkRefresh() : setLoading(false);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log(`Loading: ${loading}`);
+    console.log(`Auth: ${JSON.stringify(auth?.accessToken)}`);
+  }, [loading]);
+
+  return (
+    <>{!persist ? <Outlet /> : loading ? <p>Loading...</p> : <Outlet />}</>
+  );
+};
+
+export default PersistLogin;
+import { useState, useEffect } from "react";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import axios from "../api/axios";
+import { useNavigate, useLocation } from "react-router-dom";
+
+/* Preparing User class for authentication */
+/* See Dave Gray's React Login Authentication video */
+/* Using JWT Access, Refresh Tokens, Cookies, and Axios
+(Axios may violate project guidelines, implement skeleton
+code to avoid repetitive work*/
+const Users = () => {
+  const [users, setUsers] = useState();
+  const axiosPrivate = useAxiosPrivate();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Only run when component mounts/loads
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const getUsers = async () => {
+      try {
+        const response = await axiosPrivate.get("/users", {
+          signal: controller.signal,
+        });
+        console.log("Users response: ", response.data);
+        isMounted && setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users: ", error?.response?.data);
+        navigate("/login", {
+          state: { from: location },
+          replace: true,
+        });
+      }
+    };
+
+    getUsers();
+
+    // Cancel any requests when unmount
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, []); // Empty dependency array to avoid infinite loop
+
+  // Calling user state with optional chaining
+  return (
+    <article>
+      <h2>Users List</h2>
+      {users?.length ? (
+        <u1>
+          {users.map((user, i) => (
+            <li key={i}>{user?.username}</li>
+          ))}
+        </u1>
+      ) : (
+        <p>No users to display</p>
+      )}
+    </article>
+  );
+};
+
+export default Users;
+// src/components/index.js
+export { default as Sidebar } from "./Sidebar";
+export { default as SidebarItems } from "./Sidebar/SidebarItems";
+export { default as DynamicItem } from "./Routes/[item]";
+
+export { SIDEBAR_DATA as dummyData } from "./Data";
+// src/components/Data.js
+import {
+  HomeIcon,
+  LayoutIcon,
+  CalendarIcon,
+  InvoiceIcon,
+  UserIcon,
+  RolesIcon,
+  PagesIcon,
+  AuthIcon,
+} from "./Icons";
+
+export const SIDEBAR_DATA = [
+  {
+    id: 1,
+    name: "home",
+    path: "home",
+    icon: <HomeIcon />,
+  },
+  {
+    id: 2,
+    name: "layouts",
+    path: "layouts",
+    icon: <LayoutIcon />,
+  },
+  {
+    id: 3,
+    name: "calendar",
+    path: "calendar",
+    icon: <CalendarIcon />,
+  },
+  {
+    id: 4,
+    name: "invoice",
+    path: "invoice",
+    icon: <InvoiceIcon />,
+  },
+  {
+    id: 5,
+    name: "admin",
+    path: "admin",
+    icon: <UserIcon />,
+  },
+  {
+    id: 6,
+    name: "login",
+    path: "login",
+    icon: <RolesIcon />,
+  },
+  {
+    id: 7,
+    name: "search",
+    path: "search",
+    icon: <PagesIcon />,
+  },
+  {
+    id: 8,
+    name: "logout",
+    path: "logout",
+    icon: <AuthIcon />,
+    action: "logout",
+  },
+  {
+    id: 9,
+    name: "profile",
+    path: "profile",
+    icon: <UserIcon />,
+  }
+];
+import { useLocation, Navigate, Outlet } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
+
+const RequireAuth = ({ allowedRoles }) => {
+  const { auth } = useAuth();
+  const location = useLocation();
+
+  const userRoles = auth?.roles || [];
+
+  console.log("Allowed Roles:", allowedRoles);
+  console.log("User Roles:", auth?.roles);
+
+  const hasAccess = userRoles.find((role) => allowedRoles.includes(role));
+  console.log("Has Access:", hasAccess);
+
+  return hasAccess ? (
+    <Outlet />
+  ) : auth?.username ? (
+    <Navigate to="/unauthorized" state={{ from: location }} replace />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
+};
+
+export default RequireAuth;
+const express = require("express");
+const router = express.Router();
+const profileUpdateController = require("../../../controllers/profileUpdateController")
+const verifyJWT = require("../../../middleware/verifyJWT")
+const upload = require("../../../middleware/multer"); 
+
+router.get("/", verifyJWT, profileUpdateController.getProfile)
+router.post("/", verifyJWT, upload.single("profilepicture"), profileUpdateController.handleEdit);
+
+module.exports = router;
+const express = require("express");
+const router = express.Router();
+const postController = require("../../../controllers/postController");
+const verifyJWT = require("../../../middleware/verifyJWT");
+const verifyRoles = require("../../../middleware/verifyRoles");
+const ROLES_LIST = require("../../../config/roles_list");
+
+router.get("/", postController.getPosts);
+router.get("/search", postController.searchPosts);
+
+// Apply JWT verification
+router.post("/", verifyJWT, postController.createPost);
+router.patch("/:id/like", verifyJWT, postController.likePost);
+router.post("/:id/comments", verifyJWT, postController.addCommentToPost);
+router.delete("/:id", verifyJWT, postController.deletePost);
+
+module.exports = router;
+const express = require("express");
+const router = express.Router();
+const logoutController = require("../../../controllers/logoutController");
+
+router.get("/", logoutController.handleLogout);
+
+module.exports = router;
+const express = require("express");
+const router = express.Router();
+const registerController = require("../../../controllers/authController");
+
+router.post("/", registerController.handleLogin);
+
+module.exports = router;
+const express = require("express");
+const router = express.Router();
+const registerController = require("../../../controllers/registerController");
+
+router.post("/", registerController.handleNewUser);
+
+module.exports = router;
+const express = require("express");
+const router = express.Router();
+const refreshTokenController = require("../../../controllers/refreshTokenController");
+
+router.get("/", refreshTokenController.handleRefreshToken);
+
+module.exports = router;
+import { useContext } from "react";
+import AuthContext from "../context/AuthProvider";
+
+const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+export default useAuth;
+import { axiosPrivate } from "../api/axios";
+import { useEffect } from "react";
+import useRefreshToken from "./useRefreshToken";
+import useAuth from "./useAuth";
+
+const useAxiosPrivate = () => {
+  const refresh = useRefreshToken();
+  const { auth } = useAuth();
+
+  useEffect(() => {
+    // Add a request interceptor
+    const requestInterceptor = axiosPrivate.interceptors.request.use(
+      (config) => {
+        if (!config.headers["Authorization"]) {
+          config.headers["Authorization"] = `Bearer ${auth?.accessToken}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    const responseInterceptor = axiosPrivate.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const prevRequest = error?.config;
+        if (error?.response?.status === 403 && !prevRequest?.sent) {
+          prevRequest.sent = true;
+          const newAccessToken = await refresh();
+          prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          return axiosPrivate(prevRequest);
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axiosPrivate.interceptors.response.eject(responseInterceptor);
+      axiosPrivate.interceptors.request.eject(requestInterceptor);
+    };
+  }, [auth, refresh]);
+
+  return axiosPrivate;
+};
+
+export default useAxiosPrivate;
+import axios from "../api/axios";
+import useAuth from "./useAuth";
+
+const useLogout = () => {
+  const { setAuth } = useAuth();
+
+  const logout = async () => {
+    setAuth({});
+    try {
+      const response = await axios("/logout", { withCredentials: true });
+    } catch (error) {
+      console.error("Error logging out: ", error);
+    }
+  };
+
+  return logout;
+};
+
+export default useLogout;
+import axios from "../api/axios";
+import useAuth from "./useAuth";
+
+const useRefreshToken = () => {
+  const { setAuth } = useAuth();
+
+  const refreshToken = async () => {
+    const response = await axios.get("/refresh", { withCredentials: true });
+    setAuth((prev) => {
+      console.log(JSON.stringify(prev));
+      console.log(response.data.accessToken);
+      return {
+        ...prev,
+        roles: response.data.roles,
+        accessToken: response.data.accessToken,
+      };
+    });
+    return response.data.accessToken;
+  };
+
+  return refreshToken;
+};
+
+export default useRefreshToken;
+import axios from "axios";
+
+export default axios.create({
+  baseURL: "http://localhost:5000",
+});
+
+// Refresher token to check for expired tokens
+export const axiosPrivate = axios.create({
+  baseURL: "http://localhost:5000",
+  headers: { "Content-Type": "application/json" },
+  withCredentials: true,
+});
+const express = require("express");
+const router = express.Router();
+const usersController = require("../../controllers/usersController");
+const ROLES_LIST = require("../../config/roles_list");
+const verifyRoles = require("../../middleware/verifyRoles");
+
+router
+  .route("/")
+  .get(verifyRoles(ROLES_LIST.Admin), usersController.getAllUsers)
+  .delete(verifyRoles(ROLES_LIST.Admin), usersController.deleteUser);
+
+router
+  .route("/:id")
+  .get(verifyRoles(ROLES_LIST.Admin), usersController.getUser);
+
+router
+  .route("/me")
+  .get(usersController.getCurrentUser);
+
+module.exports = router;
+
+
+const express = require("express");
+const router = express.Router();
+const permissionsController = require("../controllers/permissionsController");
+const ROLES_LIST = require("../../config/roles_list");
+const verifyRoles = require("../../middleware/permissions");
+
+router.get(
+  "/",
+  verifyRoles(ROLES_LIST.ADMIN),
+  permissionsController.handleGetPermissions
+);
+
+// Export LATER
+// module.exports = router;
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+
+import React from "react";
+
+import { Routes, Route, useLocation, Outlet } from "react-router-dom";
+import { DynamicItem, Sidebar, dummyData } from "./components";
+
+import RequireAuth from "./components/RequireAuth";
+import PersistLogin from "./components/PersistLogin";
+import SignUp from "./pages/SignUp";
+import Login from "./pages/Login";
+import Unauthorized from "./pages/Unauthorized";
+import Admin from "./pages/Admin";
+import Chatbot from "./Chatbot"
+
+import "./App.css";
+
+const ROLES_LIST = {
+  Admin: 5150,
+  Editor: 1984,
+  User: 2001,
+};
+
+function App() {
+  const location = useLocation();
+
+  // Define routes where Sidebar should be hidden
+  const hiddenSidebarRoutes = ["/login", "/signup", "/unauthorized"];
+
+  const shouldShowSidebar = () =>
+    !hiddenSidebarRoutes.includes(location.pathname) ||
+    dummyData?.some((item) => item.path === location.pathname);
+
+  console.log(location.pathname);
+
+  return (
+    <div className="main">
+      {shouldShowSidebar() && <Sidebar />}
+      {shouldShowSidebar() && <Chatbot />}
+      <Routes>
+        {/* <Route
+          path="/"
+          element={
+            <main className="main">
+              <Outlet />
+            </main>
+          }
+        /> */}
+        {/* Public Routes */}
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+
+        {/* Protected Dynamic Routes */}
+        <Route element={<PersistLogin />}>
+          <Route element={<RequireAuth allowedRoles={[ROLES_LIST.Admin]} />}>
+            <Route path="/admin" element={<DynamicItem page="admin" />} />
+          </Route>
+
+          <Route element={<RequireAuth allowedRoles={[ROLES_LIST.User]} />}>
+            <Route path="/" element={<DynamicItem page="home" />} />
+            <Route path="/home" element={<DynamicItem page="home" />} />
+            {dummyData &&
+              dummyData.map((item, index) => (
+                <Route
+                  key={index}
+                  path={item.path}
+                  element={<DynamicItem page={item.name} />}
+                />
+              ))}
+          </Route>
+        </Route>
+
+        {/* Not Found Route */}
+        <Route path="*" element={<DynamicItem page="not-found" />} />
+      </Routes>
+    </div>
+  );
+}
+
+export default App;
