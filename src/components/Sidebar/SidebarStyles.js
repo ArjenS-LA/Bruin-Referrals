@@ -97,7 +97,7 @@ export const SidebarContainer = styled.div`
   position: absolute;
   left: 0;
   width: ${({ displaySidebar }) => (displaySidebar ? "15rem" : "5rem")};
-  height: 100vh;
+  height: 250vh;
   padding: 0.75rem;
   background: #f3f4f4;
   transition: width 350ms ease;

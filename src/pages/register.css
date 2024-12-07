@@ -34,7 +34,9 @@ section {
     flex-direction: column;
     justify-content: flex-start;
     padding: 1rem;
+    align-self: auto;
     background-color: rgba(0,0,0,0.4);
+    z-index: 1;
 }
 
 form {
@@ -43,6 +45,7 @@ form {
     justify-content: space-evenly;
     flex-grow: 1;
     padding-bottom: 1rem;
+    z-index: 1;
 }
 
 a, a:visited {
@@ -76,6 +79,7 @@ button {
     padding: 0.25rem;
     position: relative;
     bottom: -10px;
+    z-index: 1;
 }
 
 .instructions > svg {
@@ -111,6 +115,7 @@ button {
 
 .line {
     display: inline-block;
+    z-index: 1;
 }
 
 .flexGrow {
