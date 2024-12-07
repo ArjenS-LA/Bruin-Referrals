@@ -154,16 +154,15 @@ const searchPosts = async (req, res) => {
       industry,
       jobType,
       page = 1,
-      limit = 10,
+      limit = 30,
     } = req.query;
 
     const criteria = {};
 
     if (startDate && endDate) {
-      if(startDate === endDate){
+      if (startDate === endDate) {
         criteria.createdAt = { $gte: new Date(startDate) };
-      }
-      else{
+      } else {
         criteria.createdAt = {
           $gte: new Date(startDate),
           $lte: new Date(endDate),
